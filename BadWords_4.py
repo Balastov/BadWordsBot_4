@@ -465,7 +465,7 @@ def show_users_command(message):
     response = "👥 Пользователи чата:\n\n"
 
     for i, (user_id, username, first_name, last_name, chat_id) in enumerate(users, 1):
-        user_info = f"@{username}" if username else f"{first_name} {last_name or ''}".strip()
+        user_info = f"{username}" if username else f"{first_name} {last_name or ''}".strip()
         response += f"{i}. {user_info} (ID: {user_id})\n"
 
     bot.reply_to(message, response)
