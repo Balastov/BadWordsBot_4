@@ -15,7 +15,7 @@ from DailyEvents import DailyEvents
 bot = telebot.TeleBot('8384870189:AAEViu4Ee_0jD6-SU7F6TQMHIJCLUyT-SI4')
 daily_events = DailyEvents(bot)
 
-# тест
+# тест 2
 #-------------------------------------------------------------------------------------------------------------------
 
 try:
