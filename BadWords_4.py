@@ -320,6 +320,7 @@ def test_menu(message):
 
 
 
+# fix
 @bot.message_handler(func=lambda message: message.text == 'ERROR')
 def show_my_score(message):
     user_id = message.from_user.id
