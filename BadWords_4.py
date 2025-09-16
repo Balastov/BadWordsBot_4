@@ -73,6 +73,8 @@ bot_answer_no_ukr = [
      "Пидора отвэ", "Ай нанэ нанэ", "Всё ебло в говнэ"
 ]
 
+bot_answer_yes = ["Пизда!"]
+
 bad_words = ["хуй", "хyй", "xyй", "хуёвый", "хуевый", "хуёвые", "хуевая", "хуёвая", "хуя", "хуета", "х у й", "п и з д а",
     "хуевые", "хуёвые", "нахуевертить", "хуишко", "хууй", "хуууй", "хууууй", "хуууууй", "хууууууй", "хуле",
     "ахуел",
@@ -586,6 +588,23 @@ def handle_no_word(message):
     last_word = words[-1].lower() if words else None
     # Отвечаем на сообщения с "нэ" в конце
     bot.reply_to(message, f"{random.choice(bot_answer_no_ukr)}")
+
+# 5.2. Обработчик слова "да"
+@bot.message_handler(func=lambda message:
+    message.text and
+    message.text.strip().split() and
+    message.text.strip().rstrip('.,!?;:').lower().startswith('д') and
+    all(c in 'да' for c in message.text.strip().rstrip('.,!?;:').lower()) and
+    len(message.text.strip().rstrip('.,!?;:')) >= 2
+)
+def handle_yes_word(message):
+    # Дополнительная проверка
+    clean_text = message.text.strip().rstrip('.,!?;:').lower()
+
+    # Проверяем что это вариация "да" (начинается на "д", остальное - "а")
+    if (clean_text.startswith('д') and
+            all(char == 'а' for char in clean_text[1:])):
+        bot.reply_to(message, f"{random.choice(bot_answer_yes)}")
 
 # Добавляем в обработчик сообщений (только сбор пользователей)
 @bot.message_handler(content_types=['text'])
