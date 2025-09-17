@@ -235,7 +235,7 @@ def show_main_menu(chat_id, message_text="🤖 Главное меню"):
 
     btn1 = telebot.types.KeyboardButton('Admin')
     btn2 = telebot.types.KeyboardButton('Играть в кампуктер')
-    btn3 = telebot.types.KeyboardButton('ERROR')
+    btn3 = telebot.types.KeyboardButton('Start Events')
     btn4 = telebot.types.KeyboardButton('Перепись матершинников')
     btn5 = telebot.types.KeyboardButton('Шутка за 300')
 
@@ -324,14 +324,11 @@ def test_menu(message):
 
 
 # fix
-@bot.message_handler(func=lambda message: message.text == 'ERROR')
-def show_my_score(message):
-    user_id = message.from_user.id
-    if user_id in users_scores:
-        score = users_scores[user_id]['score']
-        bot.reply_to(message, f"Ты наковырял себе {score} баллов! Возьми с полки пирожок. ❤️")
-    else:
-        bot.reply_to(message, "Написано же, ЭРРОР! В глазки долбишься?")
+@bot.message_handler(func=lambda message: message.text == 'Start Events')
+# Команда для запуска ежедневных событий
+def start_daily_events(message):
+    daily_events.start_daily_scheduler(message.chat.id)
+    bot.reply_to(message, "✅ Ехало! Буду присылать праздники каждый день в 8:00 по МСК. Инджой.")
 
 @bot.message_handler(func=lambda message: message.text == 'Перепись матершинников')
 # # Команда для показа топа нарушителей
