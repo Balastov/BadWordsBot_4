@@ -75,6 +75,9 @@ bot_answer_no_ukr = [
 
 bot_answer_yes = ["Пизда!"]
 
+
+bot_answer_aga = ["В жопе нога", "Врага! Пока лежит, а то убежит!"]
+
 bad_words = ["хуй", "хyй", "xyй", "хуёвый", "хуевый", "хуёвые", "хуевая", "хуёвая", "хуя", "хуета", "х у й", "п и з д а",
     "хуевые", "хуёвые", "нахуевертить", "хуишко", "хууй", "хуууй", "хууууй", "хуууууй", "хууууууй", "хуле",
     "ахуел",
@@ -586,7 +589,7 @@ def handle_no_word(message):
     # Отвечаем на сообщения с "нэ" в конце
     bot.reply_to(message, f"{random.choice(bot_answer_no_ukr)}")
 
-# 5.2. Обработчик слова "да"
+# 5.3. Обработчик слова "да"
 @bot.message_handler(func=lambda message:
     message.text and
     message.text.strip().split() and
@@ -602,6 +605,27 @@ def handle_yes_word(message):
     if (clean_text.startswith('д') and
             all(char == 'а' for char in clean_text[1:])):
         bot.reply_to(message, f"{random.choice(bot_answer_yes)}")
+
+# 5.4. Обработчик слова "ага"
+@bot.message_handler(func=lambda message:
+    message.text and
+    message.text.strip().split() and
+    message.text.strip().split()[-1].rstrip('.,!?:;').lower() == "ага"
+)
+def handle_aga_word(message):
+    if not message.text or not message.text.strip():
+        return
+
+    # Разбиваем текст на слова и берём последнее слово
+    words = message.text.strip().split()
+    last_word = words[-1].lower() if words else None
+    # Отвечаем на сообщения с "ага" в конце
+    bot.reply_to(message, f"{random.choice(bot_answer_aga)}")
+
+
+
+
+
 
 # Добавляем в обработчик сообщений (только сбор пользователей)
 @bot.message_handler(content_types=['text'])
