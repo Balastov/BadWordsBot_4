@@ -96,7 +96,8 @@ class DailyEvents:
         except:
             return None
 
-    def _get_events_from_historical_events_api(self):
+    @staticmethod
+    def _get_events_from_historical_events_api():
         """Получает исторические события из API"""
         try:
             # API исторических событий
@@ -155,7 +156,8 @@ class DailyEvents:
         ]
         return random.choice(backup_events)
 
-    def format_message(self, events):
+    @staticmethod
+    def format_message(events):
         """Форматирует сообщение с событиями"""
         today = datetime.now()
         message = f"📅 {today.strftime('%d.%m.%Y')}\n\n"
@@ -208,3 +210,5 @@ class DailyEvents:
     def stop_scheduler(self):
         """Останавливает планировщик"""
         self.running = False
+
+
