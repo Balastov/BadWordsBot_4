@@ -186,7 +186,7 @@ class DailyEvents:
         except Exception as e:
             print(f"❌ Ошибка отправки события: {e}")
 
-    def start_daily_scheduler(self, chat_id, hour=8, minute=0):
+    def start_daily_scheduler(self, chat_id, hour=11, minute=0):
         """Запускает ежедневную отправку в 8:00 по МСК"""
 
         def scheduler():
