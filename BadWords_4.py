@@ -7,6 +7,9 @@ import telebot
 from bs4 import BeautifulSoup
 import requests
 import sqlite3
+
+from telegram._utils import markup
+
 from DailyEvents import DailyEvents
 # import os
 
@@ -341,21 +344,57 @@ def test_menu(message):
 
 
 @bot.message_handler(func=lambda message: message.text == 'Играть в кампуктер')
-def test_menu(message):
+def play_сomputer_menu(message):
     # Создаём выпадающее меню для "Играть в кампуктер"
-    markup = telebot.types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 
     # Добавляем кнопки подменю "Играть в кампуктер"
-    btn1 = telebot.types.KeyboardButton('Paladins')
-    btn2 = telebot.types.KeyboardButton('Supreme Commander')
-    btn3 = telebot.types.KeyboardButton('Гоночки')
-    btn4 = telebot.types.KeyboardButton('Satisfactory')
-    btn_back = telebot.types.KeyboardButton('🔙 Назад')
+    btn1 = telebot.types.InlineKeyboardButton('Paladins', callback_data='game_paladins')
+    btn2 = telebot.types.InlineKeyboardButton('Supreme Commander', callback_data='game_supreme_commander')
+    btn3 = telebot.types.InlineKeyboardButton('Гоночки', callback_data='game_races')
+    btn4 = telebot.types.InlineKeyboardButton('Satisfactory', callback_data='game_satisfactory')
+    btn5 = telebot.types.InlineKeyboardButton('Ascent', callback_data='game_ascent')
+    btn6 = telebot.types.InlineKeyboardButton('Другая игра', callback_data='game_empty')
 
-    markup.add(btn1, btn2, btn3, btn4, btn_back)
+    markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
 
     # Отправляем сообщение с подменю
-    bot.send_message(message.chat.id, "Во что ты хочешь поиграть с товарищами?", reply_markup=markup)
+    bot.send_message(message.chat.id, "Во что ты хочешь поиграть с товарищами?",
+                     reply_markup=markup,
+                     parse_mode='Markdown'
+    )
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('game_'))
+def handle_game_selection(call):
+    try:
+        games = {
+            'game_paladins': "@mr_clown_baban, @Balastov, @utka_uwu, @ongad, @Lobok000, @zloifikyc, @sheynnette, "
+                             "погнали играть в Pasasins!",
+            'game_supreme_commander': f"Погнали играть в Supreme Commander!\n"
+                                      "Не забудь зареклеймить масс-экстрактор у союзника =)\n"
+                                      "@mr_clown_baban, @Balastov, @ongad, @Lobok000, @zloifikyc",
+            'game_races': f"Погнали в какие-нибудь гоночки?\n"
+                                      "@Balastov, @ongad, @Lobok000, проверьте масло и давление в шинах!",
+            'game_satisfactory': f"😳😳😳\nЕЕЕЕЕЕЕЕЕЕЕЕЕЕБААААААААТЬ!!!\nОООООООООХУЕЕЕЕЕЕЕЕЕЕТЬ!!!\nСрочно "
+                                      "@Balastov буди Геннадия, время выплавлять ебучий алюминий!",
+            'game_ascent': f"Погнали в Ascent, @Balastov, @ongad, @Lobok000, @mr_clown_baban",
+            'game_empty': f"Здесь пока пусто",
+        }
+
+        # Просто отправляем сообщение с вызовом игроков
+        bot.send_message(call.message.chat.id, games[call.data])
+        bot.answer_callback_query(call.id, "Народ вызван, можешь спокойно курить")
+
+    except Exception as e:
+        print(f'❌ Ошибка: {e}')
+        bot.answer_callback_query(call.id, 'АШЫПКА!')
+
+
+
+
+
+
+
 
 # Обработчики для кнопок меню
 @bot.message_handler(func=lambda message: message.text == 'Admin')
@@ -433,10 +472,7 @@ def send_joke(message):
 
 @bot.message_handler(func=lambda message: message.text == 'Paladins')
 def test1_action(message):
-    bot.send_message(message.chat.id, "😏 Ок, я понял, тебе захотелось публичных унижений.\nЛадно, "
-                                      "давай поищем тех, кто тоже не против лишиться последних капель дофамина "
-                                      "в организме.\n@mr_clown_baban @Balastov @utka_uwu @ongad @Lobok000 "
-                                      "@zloifikyc @sheynnette, пробудитесь!"
+    bot.send_message(message.chat.id, ""
                      )
 
 @bot.message_handler(func=lambda message: message.text == 'Supreme Commander')
