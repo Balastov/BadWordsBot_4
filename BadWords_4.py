@@ -7,6 +7,8 @@ import telebot
 from bs4 import BeautifulSoup
 import requests
 import sqlite3
+import threading
+import time
 
 from telegram._utils import markup
 
@@ -42,6 +44,7 @@ except ImportError:
         return []
 
 #-------------------------------------------------------------------------------------------------------------------
+
 
 
 
@@ -292,6 +295,11 @@ def show_main_menu(chat_id, message_text="🤖 Главное меню"):
 #---------------------------------------------------------------------------------------------------------------
 
 
+
+
+
+
+
 # Проверка наличия матерных слов в тексте
 def contains_bad_words(text):
     if not text or not isinstance(text, str):
@@ -341,7 +349,27 @@ def test_menu(message):
     bot.send_message(message.chat.id, "Сюда нельзя, козлёночком станешь!", reply_markup=markup)
 
 
+# Словарь для хранения ID сообщений с меню
+active_menus = {}
 
+
+def delete_message_after_delay(chat_id, message_id, delay_seconds=60):
+    """Удаляет сообщения через указанное время"""
+
+    def delete_message():
+        time.sleep(delay_seconds)
+        try:
+            bot.delete_message(chat_id, message_id)
+            # Удаляем из словаря активных меню
+            if chat_id in active_menus:
+                del active_menus[chat_id]
+            print(f"✅ Сообщение {message_id} удалено")
+        except Exception as e:
+            print(f"❌ Не удалось удалить сообщение: {e}")
+
+    timer = threading.Thread(target=delete_message)
+    timer.daemon = True
+    timer.start()
 
 @bot.message_handler(func=lambda message: message.text == 'Играть в кампуктер')
 def play_сomputer_menu(message):
@@ -359,10 +387,20 @@ def play_сomputer_menu(message):
     markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
 
     # Отправляем сообщение с подменю
-    bot.send_message(message.chat.id, "Во что ты хочешь поиграть с товарищами?",
-                     reply_markup=markup,
-                     parse_mode='Markdown'
+    sent_message = bot.send_message(
+        message.chat.id,
+        "*Ну что, юный (или не очень) задрот, во что ты собрался поиграть?*"
+        "\n\n*Сообщение удалится через 2 минуты* ⏰",
+        reply_markup=markup,
+        parse_mode='Markdown'
     )
+
+    # Сохраняем ID сообщения
+    active_menus[message.chat.id] = sent_message.message_id
+
+    # Запускаем таймер удаления
+    delete_message_after_delay(message.chat.id, sent_message.message_id, 60)
+
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('game_'))
 def handle_game_selection(call):
@@ -380,6 +418,14 @@ def handle_game_selection(call):
             'game_ascent': f"Погнали в Ascent, @Balastov, @ongad, @Lobok000, @mr_clown_baban",
             'game_empty': f"Здесь пока пусто",
         }
+
+        # Удаляем меню сразу при выборе игры
+        if call.message.chat.id in active_menus:
+            try:
+                bot.delete_message(call.message.chat.id, active_menus[call.message.chat.id])
+                del active_menus[call.message.chat.id]
+            except:
+                pass
 
         # Просто отправляем сообщение с вызовом игроков
         bot.send_message(call.message.chat.id, games[call.data])
