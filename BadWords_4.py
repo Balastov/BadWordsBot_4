@@ -574,36 +574,42 @@ def get_top_users_simple(limit=10):
 # 4. Обработчик матов
 @bot.message_handler(func=lambda message: contains_bad_words(message.text))
 def handle_bad_words(message):
-    user = message.from_user
-    username = f"@{message.from_user.username}" if message.from_user.username else message.from_user.first_name
+    try:
+        user = message.from_user
+        username = f"@{message.from_user.username}" if message.from_user.username else message.from_user.first_name
 
-    # Увеличиваем счёт матов
-    new_score = increase_bad_score(
-        user_id=user.id,
-        username=user.username,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        chat_id=message.chat.id
-    )
+        # Увеличиваем счёт матов
+        new_score = increase_bad_score(
+            user_id=user.id,
+            username=user.username,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            chat_id=message.chat.id
+        )
 
-    # Проверяем, является ли сообщение ответом боту
-    is_reply_to_bot = (
-        message.reply_to_message and
-        message.reply_to_message.from_user and
-        message.reply_to_message.from_user.id == bot.get_me().id
-    )
+        # Проверяем, является ли сообщение ответом боту
+        is_reply_to_bot = (
+            message.reply_to_message and
+            message.reply_to_message.from_user and
+            message.reply_to_message.from_user.id == bot.get_me().id
+        )
 
-    # Выбираем фразы
-    phrases = bot_replay_answer_bad_words if is_reply_to_bot else bot_answer_bad_words
+        # Выбираем фразы
+        phrases = bot_replay_answer_bad_words if is_reply_to_bot else bot_answer_bad_words
 
-    # Отправляем ответ
+        # Отправляем ответ
 
-    score_text = f"{random.choice(ballov_nemalo)} {new_score}!" if new_score is not None else ""
-    bot_response = f"{username}, {random.choice(phrases)}\n {score_text}".strip()
+        score_text = f"{random.choice(ballov_nemalo)} {new_score}!" if new_score is not None else ""
+        bot_response = f"{username}, {random.choice(phrases)}\n {score_text}".strip()
 
-    bot.reply_to(message, bot_response)
+        bot.reply_to(message, bot_response)
 
-    # except Exception as e:        (
+    except Exception as e:
+        print(f"❌ Ошибка в обработчике матов: {e}")
+        bot.reply_to(message, "Бля, что-то пошло не так... Анлак :'( ")
+
+
+    # except Exception as e:
     #     print(f"❌ Ошибка в обработчике матов: {e}"))
     #     bot.reply_to(message, "Бля, что-то пошло не так... Анлак :'( ")
 
