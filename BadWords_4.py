@@ -390,7 +390,7 @@ def play_сomputer_menu(message):
     sent_message = bot.send_message(
         message.chat.id,
         "*Ну что, юный (или не очень) задрот, во что ты собрался поиграть?*"
-        "\n\n*Сообщение удалится через 2 минуты* ⏰",
+        "\n\n*Сообщение удалится через минуту, не втыкай!* ⏰",
         reply_markup=markup,
         parse_mode='Markdown'
     )
