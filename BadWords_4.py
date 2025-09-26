@@ -74,6 +74,13 @@ bot_replay_answer_bad_words = ["Ах ты хуила! Ещё и огрызаеш
 
 ]
 
+ballov_nemalo = ["А сколько там у тебя баллов накопилось? Немало, уже ",
+                 "Тебя отхуесосили за мат примерно раз ",
+                 "Твой счёт - ", "Количество твоих баллов - ",
+                 "У тебя баллов ровно столько, сколько ты раз смотрел Сумерки. А именно - ",
+                 "Фууууууу, а баллов-то уже "
+
+]
 
 bot_answer_no = ["Пидора ответ", "Хипстора планшет", "Гомогея ответ", "Голый пистолет", "В Турцию билет",
                  "Сам знаешь, чей ответ", "Розовый берет", "Скользкий парапет", "Чайковского балет",
@@ -591,7 +598,7 @@ def handle_bad_words(message):
 
     # Отправляем ответ
 
-    score_text = f"А сколько там у тебя баллов? Ого, уже {new_score}!" if new_score is not None else ""
+    score_text = f"{random.choice(ballov_nemalo)} {new_score}!" if new_score is not None else ""
     bot_response = f"{username}, {random.choice(phrases)}\n {score_text}".strip()
 
     bot.reply_to(message, bot_response)
