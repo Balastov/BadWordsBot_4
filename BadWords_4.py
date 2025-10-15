@@ -819,11 +819,13 @@ def handle_no_word(message):
 def handle_yes_word(message):
     # Дополнительная проверка
     clean_text = message.text.strip().rstrip('.,!?;:').lower()
+    bot_response_yes = random.choice(bot_answer_yes)
 
     # Проверяем что это вариация "да" (начинается на "д", остальное - "а")
     if (clean_text.startswith('д') and
             all(char == 'а' for char in clean_text[1:])):
-        bot.reply_to(message, f"{random.choice(bot_answer_yes)}")
+        # bot.reply_to(message, f"{random.choice(bot_answer_yes)}")
+        bot_reply_with_probability(message, bot_response_yes, 0.50)
 
 # 5.4. Обработчик слова "ага"
 @bot.message_handler(func=lambda message:
