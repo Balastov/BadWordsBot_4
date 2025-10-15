@@ -782,7 +782,10 @@ def handle_no_word(message):
     words = message.text.strip().split()
     last_word = words[-1].lower() if words else None
     # Отвечаем на сообщения с "нет" в конце
-    bot.reply_to(message, f"{random.choice(bot_answer_no)}")
+    bot_response_no = random.choice(bot_answer_no)
+
+    # bot.reply_to(message, f"{random.choice(bot_answer_no)}")
+    bot_reply_with_probability(message, bot_response_no, 0.20)
 
 
 # 5.2. Обработчик слова "нэ"
