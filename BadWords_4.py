@@ -274,7 +274,53 @@ def auto_collect_users(message):
 
 # ----------------------------------------------------------------
 
-def should_bot_reply(probability=0.20):
+def should_bot_reply(probability=0.20, debug=False):
+    """
+    Определяет, должен ли бот ответить с заданной вероятностью
+
+    Args:
+        probability (float): Вероятность ответа от 0.0 до 1.0
+        debug (bool): Включить логирование
+
+    Returns:
+        bool: True если бот должен ответить, False если промолчать
+    """
+    chance = random.random()
+    should_reply = chance <= probability
+
+    if debug:
+        status = "✅ ОТВЕТ" if should_reply else "🔇 МОЛЧАНИЕ"
+        print(f"🎲 Вероятность ответа: {chance:.2f} <= {probability} -> {status}")
+
+    return should_reply
+
+def bot_reply_with_probability(message, response_text, probability=0.20, debug=True):
+    """
+        Отправляет ответ с заданной вероятностью
+
+        Args:
+            message: Объект сообщения от telebot
+            response_text (str): Текст ответа
+            probability (float): Вероятность отправки ответа
+            debug (bool): Включить логирование
+
+        Returns:
+            bool: True если ответ отправлен, False если промолчал
+        """
+    if should_bot_reply(probability, debug):
+        bot.reply_to(message, response_text)
+        if debug:
+            print(f"🗣️ Бот ответил (шанс {probability*100}%): {response_text[:50]}...")
+        return True
+    else:
+        if debug:
+            print(f"🔇 Бот промолчал (шанс {probability*100}%)")
+        return False
+
+
+
+
+
 
 
 #-----------------------------------------------------------------
@@ -706,7 +752,7 @@ def handle_bad_words(message):
 
     except Exception as e:
         print(f"❌ Ошибка в обработчике матов: {e}")
-        bot.reply_to(message, "Бля, что-то пошло не так... Анлак :'( ")
+        bot_reply_with_probability(message, bot_response, 0.20)
 
 
     # except Exception as e:
