@@ -785,7 +785,7 @@ def handle_no_word(message):
     bot_response_no = random.choice(bot_answer_no)
 
     # bot.reply_to(message, f"{random.choice(bot_answer_no)}")
-    bot_reply_with_probability(message, bot_response_no, 0.20)
+    bot_reply_with_probability(message, bot_response_no, 0.40)
 
 
 # 5.2. Обработчик слова "нэ"
@@ -802,7 +802,11 @@ def handle_no_word(message):
     words = message.text.strip().split()
     last_word = words[-1].lower() if words else None
     # Отвечаем на сообщения с "нэ" в конце
-    bot.reply_to(message, f"{random.choice(bot_answer_no_ukr)}")
+    bot_response_no_ukr = random.choice(bot_answer_no_ukr)
+
+    # bot.reply_to(message, f"{random.choice(bot_answer_no_ukr)}")
+    bot_reply_with_probability(message, bot_response_no_ukr, 0.40)
+
 
 # 5.3. Обработчик слова "да"
 @bot.message_handler(func=lambda message:
