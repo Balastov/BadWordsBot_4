@@ -13,6 +13,7 @@ import time
 # from telegram._utils import markup
 
 from DailyEvents import DailyEvents
+from QuestionsSender import QuestionsSender
 # from MemeSender import MemeSender
 # import os
 
