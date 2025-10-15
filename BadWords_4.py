@@ -840,8 +840,11 @@ def handle_aga_word(message):
     # Разбиваем текст на слова и берём последнее слово
     words = message.text.strip().split()
     last_word = words[-1].lower() if words else None
+    bot_response_aga = random.choice(bot_answer_aga)
+
     # Отвечаем на сообщения с "ага" в конце
-    bot.reply_to(message, f"{random.choice(bot_answer_aga)}")
+    # bot.reply_to(message, f"{random.choice(bot_answer_aga)}")
+    bot_reply_with_probability(message, bot_response_aga, 0.90)
 
 
 
