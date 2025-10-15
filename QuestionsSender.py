@@ -15,7 +15,7 @@ class QuestionsSender:
         self.running = False
 
     def random_user_from_db(self, chat_id):
-        """Получаем случайного пользователя из базы"""
+        """Получаем случайного пользователя из базы!"""
         try:
             conn = sqlite3.connect('users_database.sqlite')
             cursor = conn.cursor()
