@@ -722,9 +722,9 @@ def get_top_users_simple(limit=10):
 def handle_bad_words(message):
     try:
         user = message.from_user
-        username = f"@{message.from_user.username}" if message.from_user.username else message.from_user.first_name
+        username = f"@{user.username}" if user.username else user.first_name
 
-        # Увеличиваем счёт матов
+        # ВСЕГДА увеличиваем счетчик
         new_score = increase_bad_score(
             user_id=user.id,
             username=user.username,
@@ -743,16 +743,15 @@ def handle_bad_words(message):
         # Выбираем фразы
         phrases = bot_replay_answer_bad_words if is_reply_to_bot else bot_answer_bad_words
 
-        # Отправляем ответ
-
+        # Формируем ответ
         score_text = f"{random.choice(ballov_nemalo)} {new_score}!" if new_score is not None else ""
         bot_response = f"{username}, {random.choice(phrases)}\n{score_text}".strip()
 
-        bot.reply_to(message, bot_response)
+        # ⚠️ ВАЖНО: используем bot_reply_with_probability вместо bot.reply_to
+        bot_reply_with_probability(message, bot_response, 0.20)
 
     except Exception as e:
         print(f"❌ Ошибка в обработчике матов: {e}")
-        bot_reply_with_probability(message, bot_response, 0.20)
 
 
     # except Exception as e:
