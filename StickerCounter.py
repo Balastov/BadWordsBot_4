@@ -116,7 +116,7 @@ class StickerCounter:
             print(f"❌ Ошибка при получении топа стикеров: {e}")
             return []
 
-    def get_total_stickers_in_chat(self):
+    def get_total_stickers_in_chat(self, chat_id):
         "Получает общее количество стикеров в чате"
         try:
             conn = sqlite3.connect(self.db_path)
@@ -136,7 +136,7 @@ class StickerCounter:
             print(f"❌ Ошибка при получении общего количества стикеров: {e}")
             return 0
 
-    def get_stickers_stats(self, chat_id):
+    def get_stickers_stats(self, user_id, chat_id):
         """Получает полную статистику по стикерам пользователя"""
         try:
             conn = sqlite3.connect(self.db_path)
