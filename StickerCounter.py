@@ -160,5 +160,5 @@ class StickerCounter:
                 return {'sticker_count': 0, 'last_sticker_date': None}
 
         except Exception as e:
-            print(f"❌ Ошибка при получении статистики стикеров: {e}")
+            print(f"❌ Ошибка при полу чении статистики стикеров: {e}")
             return {'sticker_count': 0, 'last_sticker_date': None}

@@ -13,6 +13,7 @@ import time
 # from telegram._utils import markup
 
 from DailyEvents import DailyEvents
+from StickerCounter import StickerCounter
 # from QuestionsSender import QuestionsSender
 # from MemeSender import MemeSender
 # import os
@@ -23,6 +24,7 @@ from DailyEvents import DailyEvents
 
 bot = telebot.TeleBot('8384870189:AAEViu4Ee_0jD6-SU7F6TQMHIJCLUyT-SI4')
 daily_events = DailyEvents(bot)
+sticker_counter = StickerCounter()
 
 # тест 2
 #-------------------------------------------------------------------------------------------------------------------
@@ -340,8 +342,9 @@ def show_main_menu(chat_id, message_text="🤖 Главное меню"):
     btn3 = telebot.types.KeyboardButton('Start Events')
     btn4 = telebot.types.KeyboardButton('Перепись матершинников')
     btn5 = telebot.types.KeyboardButton('Шутка за 300')
+    btn6 = telebot.types.KeyboardButton('Мастер стикер')
 
-    markup.add(btn1, btn2, btn3, btn4, btn5)
+    markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
 
     bot.send_message(chat_id, message_text, reply_markup=markup)
 
@@ -576,6 +579,36 @@ def send_joke(message):
     except Exception as e:
         print(f"Ошибка при отправке анекдота: {e}")
         bot.reply_to(message, "Чёт, сука, не находится шутейка... Анлак((")
+
+
+# Обработчик команды stickers
+@bot.message_handler(func=lambda message: message.text == 'Мастер стикер')
+def handle_sticker(message):
+    """Обработчик стикеров"""
+    try:
+        user = message.from_user
+        sticker = message.sticker
+
+        #Добавляем стикер в счётчик
+        sticker_count = sticker_counter.add_sticker(
+            user_id = user.id,
+            username = user.username,
+            first_name = user.first_name,
+            last_name = user.last_name,
+            chat_id = message.chat.id,
+            sticker_id = sticker.file_id,
+        )
+
+        # Можно добавить ответ с вероятностью (опционально)
+        if sticker_count and sticker_count % 10 == 0:  # Каждые 10 стикеров
+            username = f"@{user.username}" if user.username else user.first_name
+            response = f"🎉 {username}, ты отправил уже {sticker_count} стикеров!"
+            bot_reply_with_probability(message, response, 0.30)  # 30% шанс ответа
+
+        print(f"📎 Стикер от {user.username or user.first_name}: {sticker_count} шт.")
+
+    except Exception as e:
+        print(f"❌ Ошибка обработки стикера: {e}")
 
 #------------------------------------------------------------------------------------------------
 # Здесь кнопки для "Поиграть в кампуктер"
