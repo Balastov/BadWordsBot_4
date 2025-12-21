@@ -172,7 +172,7 @@ class DailyEvents:
 
         # message += "📜 Историческое событие дня:\n"
         # message += f"• {self._get_events_from_local_file()[0]}\n\n"
-        message += "@utka_uwu Утка, с Днём Рождения! 👾"
+        # message += "@utka_uwu Утка, с Днём Рождения! 👾"
 
         return message
 
