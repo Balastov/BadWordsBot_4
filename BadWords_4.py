@@ -2,7 +2,7 @@
 import random
 from http.client import responses
 
-# from datetime import datetime
+from datetime import datetime
 import telebot
 from bs4 import BeautifulSoup
 import requests
@@ -340,11 +340,11 @@ def show_main_menu(chat_id, message_text="🤖 Главное меню"):
     btn1 = telebot.types.KeyboardButton('Admin')
     btn2 = telebot.types.KeyboardButton('Играть в кампуктер')
     btn3 = telebot.types.KeyboardButton('Start Events')
-    btn4 = telebot.types.KeyboardButton('Перепись матершинников')
-    btn5 = telebot.types.KeyboardButton('Шутка за 300')
-    btn6 = telebot.types.KeyboardButton('Мастер стикер')
+    #btn4 = telebot.types.KeyboardButton('Перепись матершинников')
+    btn4 = telebot.types.KeyboardButton('Шутка за 300')
+    btn5 = telebot.types.KeyboardButton('Статистика')
 
-    markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
+    markup.add(btn1, btn2, btn3, btn4, btn5)
 
     bot.send_message(chat_id, message_text, reply_markup=markup)
 
@@ -419,6 +419,34 @@ def test_menu(message):
 # Словарь для хранения ID сообщений с меню
 active_menus = {}
 
+# Обработчик стикеров
+@bot.message_handler(content_types=['sticker'])
+def handle_sticker(message):
+    """Обработчик стикеров"""
+    try:
+        user = message.from_user
+        sticker = message.sticker
+
+        #Добавляем стикер в счётчик
+        sticker_count = sticker_counter.add_sticker(
+            user_id = user.id,
+            username = user.username,
+            first_name = user.first_name,
+            last_name = user.last_name,
+            chat_id = message.chat.id,
+            sticker_id = sticker.file_id,
+        )
+
+        # Можно добавить ответ с вероятностью (опционально)
+        if sticker_count and sticker_count % 10 == 0:  # Каждые 10 стикеров
+            username = f"@{user.username}" if user.username else user.first_name
+            response = f"🎉 {username}, ты отправил уже {sticker_count} стикеров!"
+            bot_reply_with_probability(message, response, 0.30)  # 30% шанс ответа
+
+        print(f"📎 Стикер от {user.username or user.first_name}: {sticker_count} шт.")
+
+    except Exception as e:
+        print(f"❌ Ошибка обработки стикера: {e}")
 
 def delete_message_after_delay(chat_id, message_id, delay_seconds=60):
     """Удаляет сообщения через указанное время"""
@@ -525,42 +553,7 @@ def start_daily_events(message):
     daily_events.start_daily_scheduler(message.chat.id)
     bot.reply_to(message, "✅ Ехало! Буду присылать праздники каждый день в 8:00 по МСК. Инджой.")
 
-@bot.message_handler(func=lambda message: message.text == 'Перепись матершинников')
-# # Команда для показа топа нарушителей
-# def show_bad_count(message):
-#     if not users_scores:
-#         bot.reply_to(message, "Все какие-то соевые.. Фу, аж противно! 🤢")
-#         return
-#
-#     top_users = get_top_users_simple(limit=20)
-#
-#     response = "🏆 ТОП пиздоболов:\n\n"
-#
-#     for i, (username, first_name, last_name, score) in enumerate(top_users, 1):
-#         display_name = f"@{username}" if username else f"{first_name} {last_name or ''}".strip()
-#         response += f"{i}. {display_name} - {score} баллов\n"
-#
-#     bot.reply_to(message, response)
 
-# Вариант с БД
-
-# @bot.message_handler(commands=['bad_top'])
-def show_bad_top(message):
-    top_users = get_top_bad_scores(message.chat.id, limit=15)
-
-    if not top_users:
-        bot.reply_to(message, "Все какие-то соевые.. Фу, аж противно! 🤢")
-        return
-
-    response = "🏆 ТОП матершинников:\n\n"
-
-    for i, (username, first_name, last_name, score) in enumerate(top_users, 1):
-        display_name = f"{username}" if username else f"{first_name} {last_name or ''}".strip()
-        response += f"{i}. {display_name} - {score} баллов\n"
-
-    bot.reply_to(message, response)
-
-# Конец варианта с БД
 
 
 # Обработчик команды /anekdot
@@ -581,34 +574,7 @@ def send_joke(message):
         bot.reply_to(message, "Чёт, сука, не находится шутейка... Анлак((")
 
 
-# Обработчик команды stickers
-@bot.message_handler(func=lambda message: message.text == 'Мастер стикер')
-def handle_sticker(message):
-    """Обработчик стикеров"""
-    try:
-        user = message.from_user
-        sticker = message.sticker
 
-        #Добавляем стикер в счётчик
-        sticker_count = sticker_counter.add_sticker(
-            user_id = user.id,
-            username = user.username,
-            first_name = user.first_name,
-            last_name = user.last_name,
-            chat_id = message.chat.id,
-            sticker_id = sticker.file_id,
-        )
-
-        # Можно добавить ответ с вероятностью (опционально)
-        if sticker_count and sticker_count % 10 == 0:  # Каждые 10 стикеров
-            username = f"@{user.username}" if user.username else user.first_name
-            response = f"🎉 {username}, ты отправил уже {sticker_count} стикеров!"
-            bot_reply_with_probability(message, response, 0.30)  # 30% шанс ответа
-
-        print(f"📎 Стикер от {user.username or user.first_name}: {sticker_count} шт.")
-
-    except Exception as e:
-        print(f"❌ Ошибка обработки стикера: {e}")
 
 #------------------------------------------------------------------------------------------------
 # Здесь кнопки для "Поиграть в кампуктер"
@@ -709,6 +675,114 @@ def back_from_admin(message):
 
 
 #--------------------------------------------------------------------------------------------
+# Здесь кнопки для статистики
+
+@bot.message_handler(func=lambda message: message.text == 'Статистика')
+def play_сomputer_menu(message):
+    # Создаём выпадающее меню для "Статистика"
+    markup = telebot.types.InlineKeyboardMarkup(row_width=2)
+
+    # Добавляем кнопки подменю "Статистика"
+    btn1 = telebot.types.InlineKeyboardButton('Стикеры общее', callback_data='sticker_stats')
+    btn2 = telebot.types.InlineKeyboardButton('Стикеры топ', callback_data='sticker_top')
+    btn3 = telebot.types.InlineKeyboardButton('Матершинники топ', callback_data='bad_words_top')
+
+    markup.add(btn1, btn2, btn3)
+
+    # Отправляем сообщение с подменю
+    sent_message = bot.send_message(
+        message.chat.id,
+        "*По данным статистики данные статистики часто пиздят*"
+        "\n\n*Сообщение удалится через минуту, не втыкай!* ⏰",
+        reply_markup=markup,
+        parse_mode='Markdown'
+    )
+
+
+@bot.message_handler(func=lambda message: message.text == 'Стикеры общее')
+def show_sticker_stats(message):
+    """Показывает статистику стикеров пользователя"""
+    try:
+        user_stats = sticker_counter.get_sticker_stats(message.from_user.id, message.chat.id)
+
+        response = f"📊 Твоя статистика стикеров:\n"
+        response += f"🎭 Количество: {user_stats['sticker_count']} шт.\n"
+
+        if user_stats['last_sticker_date']:
+            last_date = datetime.fromisoformat(user_stats['last_sticker_date'])
+            response += f"🕒 Последний: {last_date.strftime('%d.%m.%Y %H:%M')}"
+
+        bot.reply_to(message, response)
+
+    except Exception as e:
+        print(f"❌ Ошибка показа статистики стикеров: {e}")
+        bot.reply_to(message, "❌ Не удалось получить статистику")
+
+
+
+@bot.message_handler(func=lambda message: message.text == 'Стикеры топ')
+def show_sticker_top(message):
+    """Показывает топ пользователей по стикерам"""
+    try:
+        top_users = sticker_counter.get_top_sticker_users(message.chat.id, limit=3)
+        total_stickers = sticker_counter.get_total_stickers_in_chat(message.chat.id)
+
+        if not top_users:
+            bot.reply_to(message, "📭 В этом чате еще нет стикеров!")
+            return
+
+        response = f"🏆 ТОП стикерменов:\n\n"
+
+        for i, (username, first_name, last_name, count) in enumerate(top_users, 1):
+            display_name = f"@{username}" if username else f"{first_name} {last_name or ''}".strip()
+            response += f"{i}. {display_name} - {count} стикеров\n"
+
+        response += f"\n📦 Всего стикеров в чате: {total_stickers}"
+
+        bot.reply_to(message, response)
+
+    except Exception as e:
+        print(f"❌ Ошибка показа топа стикеров: {e}")
+        bot.reply_to(message, "❌ Не удалось получить топ")
+
+
+
+@bot.message_handler(func=lambda message: message.text == 'Матершинники топ')
+# # Команда для показа топа нарушителей
+# def show_bad_count(message):
+#     if not users_scores:
+#         bot.reply_to(message, "Все какие-то соевые.. Фу, аж противно! 🤢")
+#         return
+#
+#     top_users = get_top_users_simple(limit=20)
+#
+#     response = "🏆 ТОП пиздоболов:\n\n"
+#
+#     for i, (username, first_name, last_name, score) in enumerate(top_users, 1):
+#         display_name = f"@{username}" if username else f"{first_name} {last_name or ''}".strip()
+#         response += f"{i}. {display_name} - {score} баллов\n"
+#
+#     bot.reply_to(message, response)
+
+# Вариант с БД
+
+# @bot.message_handler(commands=['bad_top'])
+def show_bad_top(message):
+    top_users = get_top_bad_scores(message.chat.id, limit=15)
+
+    if not top_users:
+        bot.reply_to(message, "Все какие-то соевые.. Фу, аж противно! 🤢")
+        return
+
+    response = "🏆 ТОП матершинников:\n\n"
+
+    for i, (username, first_name, last_name, score) in enumerate(top_users, 1):
+        display_name = f"{username}" if username else f"{first_name} {last_name or ''}".strip()
+        response += f"{i}. {display_name} - {score} баллов\n"
+
+    bot.reply_to(message, response)
+
+# Конец варианта с БД
 
 
 #--------------------------------------------------------------------------------------------
