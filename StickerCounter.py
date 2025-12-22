@@ -136,29 +136,37 @@ class StickerCounter:
             print(f"❌ Ошибка при получении общего количества стикеров: {e}")
             return 0
 
-    def get_stickers_stats(self, user_id, chat_id):
+    def get_sticker_stats(self, user_id, chat_id):
         """Получает полную статистику по стикерам пользователя"""
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
 
-            с = cursor.execute('''
-            SELECT sticker_count, last_sticker_date 
-            FROM sticker_stats 
-            WHERE user_id = ? AND chat_id = ?
-            ''', (user_id, chat_id))
+            cursor.execute('''
+                           SELECT sticker_count, last_sticker_date
+                           FROM sticker_stats
+                           WHERE user_id = ?
+                             AND chat_id = ?
+                           ''', (user_id, chat_id))
 
             result = cursor.fetchone()
             conn.close()
 
-            if result:
+            if result and result[0]:
+                last_date = None
+                if result[1]:
+                    try:
+                        last_date = datetime.fromisoformat(result[1])
+                    except:
+                        last_date = None
+
                 return {
                     'sticker_count': result[0],
-                    'last_sticker_date': result[1],
+                    'last_sticker_date': last_date
                 }
             else:
                 return {'sticker_count': 0, 'last_sticker_date': None}
 
         except Exception as e:
-            print(f"❌ Ошибка при полу чении статистики стикеров: {e}")
+            print(f"❌ Ошибка при получении статистики стикеров: {e}")
             return {'sticker_count': 0, 'last_sticker_date': None}

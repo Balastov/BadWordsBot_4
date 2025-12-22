@@ -683,9 +683,9 @@ def play_сomputer_menu(message):
     markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 
     # Добавляем кнопки подменю "Статистика"
-    btn1 = telebot.types.InlineKeyboardButton('Стикеры общее', callback_data='sticker_stats')
-    btn2 = telebot.types.InlineKeyboardButton('Стикеры топ', callback_data='sticker_top')
-    btn3 = telebot.types.InlineKeyboardButton('Матершинники топ', callback_data='bad_words_top')
+    btn1 = telebot.types.InlineKeyboardButton('Стикеры общее', callback_data='stats_stickers')
+    btn2 = telebot.types.InlineKeyboardButton('Стикеры топ', callback_data='stats_sticker_top')
+    btn3 = telebot.types.InlineKeyboardButton('Матершинники топ', callback_data='stats_bad_words_top')
 
     markup.add(btn1, btn2, btn3)
 
@@ -699,20 +699,64 @@ def play_сomputer_menu(message):
     )
 
 
-@bot.message_handler(func=lambda message: message.text == 'Стикеры общее')
+    # Сохраняем ID сообщения
+    active_menus[message.chat.id] = sent_message.message_id
+
+    # Запускаем таймер удаления
+    delete_message_after_delay(message.chat.id, sent_message.message_id, 60)
+
+@bot.callback_query_handler(func=lambda call: call.data in ['stats_stickers', 'stats_sticker_top', 'stats_bad_words_top'])
 def show_sticker_stats(message):
     """Показывает статистику стикеров пользователя"""
     try:
-        user_stats = sticker_counter.get_sticker_stats(message.from_user.id, message.chat.id)
+        if call.data == 'stats_stickers':
+            # Показываем статистику стикеров конкретного пользователя
+            user_stats = sticker_counter.get_sticker_stats(message.from_user.id, message.chat.id)
 
-        response = f"📊 Твоя статистика стикеров:\n"
-        response += f"🎭 Количество: {user_stats['sticker_count']} шт.\n"
+            response = f"Твоя статистика стикеров:\n"
+            response += f" {user_stats['sticker_count']} шт.\n"
 
-        if user_stats['last_sticker_date']:
-            last_date = datetime.fromisoformat(user_stats['last_sticker_date'])
-            response += f"🕒 Последний: {last_date.strftime('%d.%m.%Y %H:%M')}"
+            if user_stats['last_sticker_date']:
+                last_date = datetime.fromisoformat(user_stats['last_sticker_date'])
+                response += f"Последний: {last_date.strftime('%d.%m.%Y %H:%M')}"
 
-        bot.reply_to(message, response)
+            bot.send_message(call.message.chat.id, response)
+
+        elif call.data == 'stats_sticker_top':
+            # Показываем топ стикеродрочеров
+            top_users = sticker_counter.get_top_sticker_users(call.message.chat.id, limit=10)
+            total_stickers = sticker_counter.get_total_stickers_in_chat(call.message.chat.id)
+
+                if not top_users:
+                    bot.send_message(call.message.chat.id, 'В этом чате ещё нет зарегистрированных мной стикеров')
+                else:
+                    response = f'ТОП стикероёбов:\n\n'
+
+                for i, (username, first_name, last_name, count) in enumerate(top_users, 1):
+                    display_name = f"{username}" if username else f"{first_name} {last_name or ''}".strip()
+                response += f"{i}. {display_name} - {count} стикеров\n"
+
+            response += f'Всего стикеров в чате: {total_stickers}'
+            bot.send_message(call.message.chat.id, response)
+
+        elif call.data == 'stats_bad_words_top':
+            # Показываем топ матершинников
+            top_users = get_top_bad_scores(call.message.chat.id, limit=15)
+
+            if not top_users:
+                bot.send_message(call.message.chat.id, 'Фу, все такие культурные, аж противно')
+            else:
+                response = 'ТОП матершинников:/n/n'
+
+            for i, (username, first_name, last_name, score) in enumerate(top_users, 1):
+                display_name = f"{username}" if username else f"{first_name} {last_name or ''}".strip()
+                response += f"{i}. {display_name} - количество баллов {score}\n"
+
+            bot.send_message(call.message.chat.id, response)
+
+        # Уведомляем пользователя, что кнопка нажата
+        bot.answer_callback_query(call.id, 'Вот статистика:')
+
 
     except Exception as e:
         print(f"❌ Ошибка показа статистики стикеров: {e}")
@@ -720,30 +764,6 @@ def show_sticker_stats(message):
 
 
 
-@bot.message_handler(func=lambda message: message.text == 'Стикеры топ')
-def show_sticker_top(message):
-    """Показывает топ пользователей по стикерам"""
-    try:
-        top_users = sticker_counter.get_top_sticker_users(message.chat.id, limit=3)
-        total_stickers = sticker_counter.get_total_stickers_in_chat(message.chat.id)
-
-        if not top_users:
-            bot.reply_to(message, "📭 В этом чате еще нет стикеров!")
-            return
-
-        response = f"🏆 ТОП стикерменов:\n\n"
-
-        for i, (username, first_name, last_name, count) in enumerate(top_users, 1):
-            display_name = f"@{username}" if username else f"{first_name} {last_name or ''}".strip()
-            response += f"{i}. {display_name} - {count} стикеров\n"
-
-        response += f"\n📦 Всего стикеров в чате: {total_stickers}"
-
-        bot.reply_to(message, response)
-
-    except Exception as e:
-        print(f"❌ Ошибка показа топа стикеров: {e}")
-        bot.reply_to(message, "❌ Не удалось получить топ")
 
 
 
@@ -767,6 +787,7 @@ def show_sticker_top(message):
 # Вариант с БД
 
 # @bot.message_handler(commands=['bad_top'])
+# Вот это я закомментировал последним
 def show_bad_top(message):
     top_users = get_top_bad_scores(message.chat.id, limit=15)
 
