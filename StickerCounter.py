@@ -34,39 +34,57 @@ class StickerCounter:
             print(f"❌ Ошибка при создании базы стикеров: {e}")
 
     def add_sticker(self, user_id, username, first_name, last_name, chat_id, sticker_id=None):
-        """Добавляет +1 к счётчику пользователя"""
+        """Добавляет +1 к счетчику стикеров пользователя"""
         try:
+            print(f"📎 add_sticker вызвана для: user_id={user_id}, username={username}, chat_id={chat_id}")
+
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
 
             current_time = datetime.now().isoformat()
 
-            # Проверим, существует ли пользователь
+            # Проверяем существует ли пользователь
             cursor.execute('''
-            SELECT sticker_count FROM sticker_stats 
-            WHERE user_id = ? AND chat_id = ?
-            ''',  (user_id, chat_id))
+                           SELECT sticker_count
+                           FROM sticker_stats
+                           WHERE user_id = ?
+                             AND chat_id = ?
+                           ''', (user_id, chat_id))
 
             result = cursor.fetchone()
+            print(f"📎 Результат SELECT: {result}")
 
             if result:
                 # Обновляем существующего пользователя
-                new_count = 1
+                new_count = result[0] + 1
+                print(f"📎 Обновляем пользователя: старый счет={result[0]}, новый={new_count}")
+
                 cursor.execute('''
-                UPDATE sticker_stats 
-                SET sticker_count = ?, last_sticker_date = ?, username = ?, first_name = ?, last_name = ?
-                WHERE user_id = ? AND chat_id = ?
-                ''', (new_count, current_time, username, first_name, last_name, user_id, chat_id))
+                               UPDATE sticker_stats
+                               SET sticker_count     = ?,
+                                   last_sticker_date = ?,
+                                   username          = ?,
+                                   first_name        = ?,
+                                   last_name         = ?
+                               WHERE user_id = ?
+                                 AND chat_id = ?
+                               ''', (new_count, current_time, username, first_name, last_name, user_id, chat_id))
             else:
                 # Добавляем нового пользователя
                 new_count = 1
+                print(f"📎 Добавляем нового пользователя: счет={new_count}")
+
                 cursor.execute('''
-                INSERT INTO sticker_stats 
-                (user_id, username, first_name, last_name, chat_id, sticker_count, last_sticker_date)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                ''', (user_id, username, first_name, last_name, chat_id, new_count, current_time))
+                               INSERT INTO sticker_stats
+                               (user_id, username, first_name, last_name, chat_id, sticker_count, last_sticker_date)
+                               VALUES (?, ?, ?, ?, ?, ?, ?)
+                               ''', (user_id, username, first_name, last_name, chat_id, new_count, current_time))
 
             conn.commit()
+
+            # Проверяем сколько строк было изменено
+            print(f"📎 Строк изменено: {cursor.rowcount}")
+
             conn.close()
 
             print(f"✅ Стикер добавлен: {username or first_name} - {new_count} шт.")
@@ -74,6 +92,8 @@ class StickerCounter:
 
         except Exception as e:
             print(f"❌ Ошибка при добавлении стикера: {e}")
+            import traceback
+            traceback.print_exc()
             return None
 
     def get_sticker_count(self, user_id, chat_id):
