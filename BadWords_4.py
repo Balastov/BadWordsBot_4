@@ -683,9 +683,9 @@ def play_сomputer_menu(message):
     markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 
     # Добавляем кнопки подменю "Статистика"
-    btn1 = telebot.types.InlineKeyboardButton('Стикеры общее', callback_data='stats_stickers')
-    btn2 = telebot.types.InlineKeyboardButton('Стикеры топ', callback_data='stats_sticker_top')
-    btn3 = telebot.types.InlineKeyboardButton('Матершинники топ', callback_data='stats_bad_words_top')
+    btn1 = telebot.types.InlineKeyboardButton('Стикеры общее', callback_data='sticker_stats')
+    btn2 = telebot.types.InlineKeyboardButton('Стикеры топ', callback_data='sticker_top')
+    btn3 = telebot.types.InlineKeyboardButton('Матершинники топ', callback_data='bad_words_top')
 
     markup.add(btn1, btn2, btn3)
 
