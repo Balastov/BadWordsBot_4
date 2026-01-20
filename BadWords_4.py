@@ -705,64 +705,145 @@ def play_сomputer_menu(message):
     # Запускаем таймер удаления
     delete_message_after_delay(message.chat.id, sent_message.message_id, 60)
 
-@bot.callback_query_handler(func=lambda call: call.data in ['stats_stickers', 'stats_sticker_top', 'stats_bad_words_top'])
-def show_sticker_stats(message):
-    """Показывает статистику стикеров пользователя"""
-    try:
-        if call.data == 'stats_stickers':
-            # Показываем статистику стикеров конкретного пользователя
-            user_stats = sticker_counter.get_sticker_stats(message.from_user.id, message.chat.id)
+# @bot.callback_query_handler(func=lambda call: call.data in ['stats_stickers', 'stats_sticker_top', 'stats_bad_words_top'])
+# def show_sticker_stats(message):
+#     """Показывает статистику стикеров пользователя"""
+#     try:
+#         if call.data == 'stats_stickers':
+#             # Показываем статистику стикеров конкретного пользователя
+#             user_stats = sticker_counter.get_sticker_stats(message.from_user.id, message.chat.id)
+#
+#             response = f"Твоя статистика стикеров:\n"
+#             response += f" {user_stats['sticker_count']} шт.\n"
+#
+#             if user_stats['last_sticker_date']:
+#                 last_date = datetime.fromisoformat(user_stats['last_sticker_date'])
+#                 response += f"Последний: {last_date.strftime('%d.%m.%Y %H:%M')}"
+#
+#             bot.send_message(call.message.chat.id, response)
+#
+#         elif call.data == 'stats_sticker_top':
+#             # Показываем топ стикеродрочеров
+#             top_users = sticker_counter.get_top_sticker_users(call.message.chat.id, limit=10)
+#             total_stickers = sticker_counter.get_total_stickers_in_chat(call.message.chat.id)
+#
+#                 if not top_users:
+#                     bot.send_message(call.message.chat.id, 'В этом чате ещё нет зарегистрированных мной стикеров')
+#                 else:
+#                     response = f'ТОП стикероёбов:\n\n'
+#
+#                 for i, (username, first_name, last_name, count) in enumerate(top_users, 1):
+#                     display_name = f"{username}" if username else f"{first_name} {last_name or ''}".strip()
+#                 response += f"{i}. {display_name} - {count} стикеров\n"
+#
+#             response += f'Всего стикеров в чате: {total_stickers}'
+#             bot.send_message(call.message.chat.id, response)
+#
+#         elif call.data == 'stats_bad_words_top':
+#             # Показываем топ матершинников
+#             top_users = get_top_bad_scores(call.message.chat.id, limit=15)
+#
+#             if not top_users:
+#                 bot.send_message(call.message.chat.id, 'Фу, все такие культурные, аж противно')
+#             else:
+#                 response = 'ТОП матершинников:/n/n'
+#
+#             for i, (username, first_name, last_name, score) in enumerate(top_users, 1):
+#                 display_name = f"{username}" if username else f"{first_name} {last_name or ''}".strip()
+#                 response += f"{i}. {display_name} - количество баллов {score}\n"
+#
+#             bot.send_message(call.message.chat.id, response)
+#
+#         # Уведомляем пользователя, что кнопка нажата
+#         bot.answer_callback_query(call.id, 'Вот статистика:')
+#
+#
+#     except Exception as e:
+#         print(f"❌ Ошибка показа статистики стикеров: {e}")
+#         bot.reply_to(message, "❌ Не удалось получить статистику")
 
-            response = f"Твоя статистика стикеров:\n"
-            response += f" {user_stats['sticker_count']} шт.\n"
+@bot.message_handler(func=lambda message: message.text == 'Стикеры топ')
+def show_sticker_top(message):
+    """Показывает топ пользователей по стикерам"""
+    try:
+        top_users = sticker_counter.get_top_sticker_users(message.chat.id, limit=3)
+        total_stickers = sticker_counter.get_total_stickers_in_chat(message.chat.id)
+
+        if not top_users:
+            bot.reply_to(message, "📭 В этом чате еще нет стикеров!")
+            return
+
+        response = f"🏆 ТОП стикерменов:\n\n"
+
+        for i, (username, first_name, last_name, count) in enumerate(top_users, 1):
+            display_name = f"@{username}" if username else f"{first_name} {last_name or ''}".strip()
+            response += f"{i}. {display_name} - {count} стикеров\n"
+
+        response += f"\n📦 Всего стикеров в чате: {total_stickers}"
+
+        bot.reply_to(message, response)
+
+    except Exception as e:
+        print(f"❌ Ошибка показа топа стикеров: {e}")
+        bot.reply_to(message, "❌ Не удалось получить топ")
+
+# Проблема в том, что вы создали inline-кнопки в меню "Статистика", но не добавили обработчик для callback'ов этих кнопок.
+# Нужно добавить обработчик @bot.callback_query_handler для кнопок статистики
+@bot.callback_query_handler(func=lambda call: call.data in ['sticker_stats', 'sticker_top', 'bad_words_top'])
+def handle_statistics_buttons(call):
+    try:
+        if call.data == 'sticker_stats':
+            # Показываем статистику стикеров пользователя
+            user_stats = sticker_counter.get_sticker_stats(call.from_user.id, call.message.chat.id)
+
+            response = f"📊 Твоя статистика стикеров:\n"
+            response += f"🎭 Количество: {user_stats['sticker_count']} шт.\n"
 
             if user_stats['last_sticker_date']:
-                last_date = datetime.fromisoformat(user_stats['last_sticker_date'])
-                response += f"Последний: {last_date.strftime('%d.%m.%Y %H:%M')}"
+                response += f"🕒 Последний: {user_stats['last_sticker_date'].strftime('%d.%m.%Y %H:%M')}"
 
             bot.send_message(call.message.chat.id, response)
 
-        elif call.data == 'stats_sticker_top':
-            # Показываем топ стикеродрочеров
-            top_users = sticker_counter.get_top_sticker_users(call.message.chat.id, limit=10)
+        elif call.data == 'sticker_top':
+            # Показываем топ пользователей по стикерам
+            top_users = sticker_counter.get_top_sticker_users(call.message.chat.id, limit=3)
             total_stickers = sticker_counter.get_total_stickers_in_chat(call.message.chat.id)
 
-                if not top_users:
-                    bot.send_message(call.message.chat.id, 'В этом чате ещё нет зарегистрированных мной стикеров')
-                else:
-                    response = f'ТОП стикероёбов:\n\n'
+            if not top_users:
+                bot.send_message(call.message.chat.id, "📭 В этом чате еще нет стикеров!")
+            else:
+                response = f"🏆 ТОП стикерменов:\n\n"
 
                 for i, (username, first_name, last_name, count) in enumerate(top_users, 1):
-                    display_name = f"{username}" if username else f"{first_name} {last_name or ''}".strip()
-                response += f"{i}. {display_name} - {count} стикеров\n"
+                    display_name = f"@{username}" if username else f"{first_name} {last_name or ''}".strip()
+                    response += f"{i}. {display_name} - {count} стикеров\n"
 
-            response += f'Всего стикеров в чате: {total_stickers}'
-            bot.send_message(call.message.chat.id, response)
+                response += f"\n📦 Всего стикеров в чате: {total_stickers}"
+                bot.send_message(call.message.chat.id, response)
 
-        elif call.data == 'stats_bad_words_top':
+        elif call.data == 'bad_words_top':
             # Показываем топ матершинников
             top_users = get_top_bad_scores(call.message.chat.id, limit=15)
 
             if not top_users:
-                bot.send_message(call.message.chat.id, 'Фу, все такие культурные, аж противно')
+                bot.send_message(call.message.chat.id, "Все какие-то соевые.. Фу, аж противно! 🤢")
             else:
-                response = 'ТОП матершинников:/n/n'
+                response = "🏆 ТОП матершинников:\n\n"
 
-            for i, (username, first_name, last_name, score) in enumerate(top_users, 1):
-                display_name = f"{username}" if username else f"{first_name} {last_name or ''}".strip()
-                response += f"{i}. {display_name} - количество баллов {score}\n"
+                for i, (username, first_name, last_name, score) in enumerate(top_users, 1):
+                    display_name = f"{username}" if username else f"{first_name} {last_name or ''}".strip()
+                    response += f"{i}. {display_name} - {score} баллов\n"
 
-            bot.send_message(call.message.chat.id, response)
+                bot.send_message(call.message.chat.id, response)
 
-        # Уведомляем пользователя, что кнопка нажата
-        bot.answer_callback_query(call.id, 'Вот статистика:')
-
+        # Уведомляем пользователя что кнопка нажата
+        bot.answer_callback_query(call.id, "Статистика показана!")
 
     except Exception as e:
-        print(f"❌ Ошибка показа статистики стикеров: {e}")
-        bot.reply_to(message, "❌ Не удалось получить статистику")
+        print(f"❌ Ошибка обработки статистики: {e}")
+        bot.answer_callback_query(call.id, "Ошибка!")
 
-
+#-----------------------------------------------------------------------------------------------
 
 
 
