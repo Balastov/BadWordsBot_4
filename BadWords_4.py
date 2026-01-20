@@ -427,15 +427,20 @@ def handle_sticker(message):
         user = message.from_user
         sticker = message.sticker
 
-        #Добавляем стикер в счётчик
+        print(f"📎 Получен стикер от {user.username or user.first_name} (ID: {user.id})")
+        print(f"📎 Sticker ID: {sticker.file_id}")
+
+        # Добавляем стикер в счетчик
         sticker_count = sticker_counter.add_sticker(
-            user_id = user.id,
-            username = user.username,
-            first_name = user.first_name,
-            last_name = user.last_name,
-            chat_id = message.chat.id,
-            sticker_id = sticker.file_id,
+            user_id=user.id,
+            username=user.username,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            chat_id=message.chat.id,
+            sticker_id=sticker.file_id,
         )
+
+        print(f"📎 Результат add_sticker: {sticker_count}")
 
         # Можно добавить ответ с вероятностью (опционально)
         if sticker_count and sticker_count % 10 == 0:  # Каждые 10 стикеров
