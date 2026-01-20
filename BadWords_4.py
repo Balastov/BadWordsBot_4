@@ -444,8 +444,8 @@ def handle_sticker(message):
 
         # Можно добавить ответ с вероятностью (опционально)
         if sticker_count and sticker_count % 10 == 0:  # Каждые 10 стикеров
-            username = f"@{user.username}" if user.username else user.first_name
-            response = f"🎉 {username}, ты отправил уже {sticker_count} стикеров!"
+            username = f"{user.username}" if user.username else user.first_name
+            response = f" {username}, ты отправил уже {sticker_count} стикеров!"
             bot_reply_with_probability(message, response, 0.30)  # 30% шанс ответа
 
         print(f"📎 Стикер от {user.username or user.first_name}: {sticker_count} шт.")
