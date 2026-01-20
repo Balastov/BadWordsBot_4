@@ -815,7 +815,7 @@ def handle_statistics_buttons(call):
                 response = f"🏆 ТОП стикерменов:\n\n"
 
                 for i, (username, first_name, last_name, count) in enumerate(top_users, 1):
-                    display_name = f"@{username}" if username else f"{first_name} {last_name or ''}".strip()
+                    display_name = f"{username}" if username else f"{first_name} {last_name or ''}".strip()
                     response += f"{i}. {display_name} - {count} стикеров\n"
 
                 response += f"\n📦 Всего стикеров в чате: {total_stickers}"
