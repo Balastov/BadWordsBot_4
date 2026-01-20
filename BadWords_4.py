@@ -692,7 +692,7 @@ def play_сomputer_menu(message):
     # Отправляем сообщение с подменю
     sent_message = bot.send_message(
         message.chat.id,
-        "*По данным статистики данные статистики часто пиздят*"
+        "*По данным статистики данные статистики часто пиздят.*"
         "\n\n*Сообщение удалится через минуту, не втыкай!* ⏰",
         reply_markup=markup,
         parse_mode='Markdown'
