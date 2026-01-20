@@ -762,30 +762,30 @@ def play_сomputer_menu(message):
 #         print(f"❌ Ошибка показа статистики стикеров: {e}")
 #         bot.reply_to(message, "❌ Не удалось получить статистику")
 
-@bot.message_handler(func=lambda message: message.text == 'Стикеры топ')
-def show_sticker_top(message):
-    """Показывает топ пользователей по стикерам"""
-    try:
-        top_users = sticker_counter.get_top_sticker_users(message.chat.id, limit=3)
-        total_stickers = sticker_counter.get_total_stickers_in_chat(message.chat.id)
-
-        if not top_users:
-            bot.reply_to(message, "📭 В этом чате еще нет стикеров!")
-            return
-
-        response = f"🏆 ТОП стикерменов:\n\n"
-
-        for i, (username, first_name, last_name, count) in enumerate(top_users, 1):
-            display_name = f"@{username}" if username else f"{first_name} {last_name or ''}".strip()
-            response += f"{i}. {display_name} - {count} стикеров\n"
-
-        response += f"\n📦 Всего стикеров в чате: {total_stickers}"
-
-        bot.reply_to(message, response)
-
-    except Exception as e:
-        print(f"❌ Ошибка показа топа стикеров: {e}")
-        bot.reply_to(message, "❌ Не удалось получить топ")
+# @bot.message_handler(func=lambda message: message.text == 'Стикеры топ')
+# def show_sticker_top(message):
+#     """Показывает топ пользователей по стикерам"""
+#     try:
+#         top_users = sticker_counter.get_top_sticker_users(message.chat.id, limit=3)
+#         total_stickers = sticker_counter.get_total_stickers_in_chat(message.chat.id)
+#
+#         if not top_users:
+#             bot.reply_to(message, "📭 В этом чате еще нет стикеров!")
+#             return
+#
+#         response = f"🏆 ТОП стикерменов:\n\n"
+#
+#         for i, (username, first_name, last_name, count) in enumerate(top_users, 1):
+#             display_name = f"@{username}" if username else f"{first_name} {last_name or ''}".strip()
+#             response += f"{i}. {display_name} - {count} стикеров\n"
+#
+#         response += f"\n📦 Всего стикеров в чате: {total_stickers}"
+#
+#         bot.reply_to(message, response)
+#
+#     except Exception as e:
+#         print(f"❌ Ошибка показа топа стикеров: {e}")
+#         bot.reply_to(message, "❌ Не удалось получить топ")
 
 # Проблема в том, что вы создали inline-кнопки в меню "Статистика", но не добавили обработчик для callback'ов этих кнопок.
 # Нужно добавить обработчик @bot.callback_query_handler для кнопок статистики
