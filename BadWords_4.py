@@ -16,11 +16,11 @@ from DailyEvents import DailyEvents
 from StickerCounter import StickerCounter
 # from QuestionsSender import QuestionsSender
 # from MemeSender import MemeSender
-# import os
+# import os 
 
 # import random
 
-# from telegram._utils import markup
+# from telegram._utils import markup.
 
 bot = telebot.TeleBot('8384870189:AAEViu4Ee_0jD6-SU7F6TQMHIJCLUyT-SI4')
 daily_events = DailyEvents(bot)
