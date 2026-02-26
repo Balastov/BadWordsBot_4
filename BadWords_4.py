@@ -631,11 +631,11 @@ def back_from_admin(message):
 #--------------------------------------------------------------------------------------------
 # Здесь кнопка для отправки мема
 
-@bot.message_handler(func=lambda message: message.text == 'Мемы')
+@bot.message_handler(func=lambda message: message.text == '🎬 Мемы')
 def send_meme_from_menu(message):
     """Отправляет случайный мем при нажатии кнопки!"""
     bot.send_chat_action(message.chat.id, 'upload_photo')
-    meme_sender.send_meme_now()
+    meme_sender.send_meme_now(message.chat.id)
 
 #--------------------------------------------------------------------------------------------
 # Здесь кнопки для статистики

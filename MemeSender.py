@@ -138,9 +138,13 @@ class MemeSender:
             
             time.sleep(30)  # Проверяем каждые 30 секунд
     
-    def send_meme_now(self):
+    def send_meme_now(self, chat_id=None):
         """Отправляет мем прямо сейчас"""
         try:
+            # Если передан chat_id, используем его, иначе используем сохраненный
+            if chat_id:
+                self.chat_id = chat_id
+            
             if not self.chat_id:
                 logger.error("❌ chat_id не установлен")
                 return
