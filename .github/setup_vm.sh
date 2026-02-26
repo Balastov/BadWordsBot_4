@@ -43,7 +43,14 @@ cd $DEPLOY_DIR
 # 5. Устанавливаем Python зависимости
 echo "📚 Установка Python пакетов..."
 pip3 install --upgrade pip
-pip3 install -r requirements.txt 2>/dev/null || echo "⚠️ requirements.txt не найден, продолжаем..."
+
+if [ -f "requirements.txt" ]; then
+  echo "📦 Устанавливаем пакеты из requirements.txt..."
+  pip3 install -r requirements.txt
+else
+  echo "⚠️ requirements.txt не найден, устанавливаем стандартные пакеты..."
+  pip3 install pyTelegramBotAPI requests beautifulsoup4
+fi
 
 # 6. Копируем systemd сервис
 echo "⚙️ Настройка systemd сервиса..."
