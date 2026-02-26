@@ -267,9 +267,8 @@ def show_main_menu(chat_id, message_text="🤖 Главное меню"):
     btn3 = telebot.types.KeyboardButton('Start Events')
     btn4 = telebot.types.KeyboardButton('Шутка за 300')
     btn5 = telebot.types.KeyboardButton('Статистика')
-    btn6 = telebot.types.KeyboardButton('🎬 Мемы')
 
-    markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
+    markup.add(btn1, btn2, btn3, btn4, btn5)
 
     bot.send_message(chat_id, message_text, reply_markup=markup)
 
@@ -623,44 +622,7 @@ def back_from_admin(message):
     show_main_menu(message.chat.id, "🤖 Главное меню:")
 
 
-#--------------------------------------------------------------------------------------------
-# Здесь кнопки для управления мемами
 
-@bot.message_handler(func=lambda message: message.text == '🎬 Мемы')
-def memes_menu(message):
-    """Показывает подменю управления мемами"""
-    markup = telebot.types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
-
-    btn1 = telebot.types.KeyboardButton('🚀 Запустить мемы')
-    btn2 = telebot.types.KeyboardButton('🛑 Остановить мемы')
-    btn3 = telebot.types.KeyboardButton('😂 Мем сейчас')
-    btn_back = telebot.types.KeyboardButton('🔙 Назад')
-
-    markup.add(btn1, btn2, btn3, btn_back)
-
-    bot.send_message(
-        message.chat.id,
-        "🎬 Управление мемами:\n"
-        "- Запустить мемы: отправка в 9:00, 15:00, 20:00 МСК\n"
-        "- Остановить мемы: деактивировать отправку\n"
-        "- Мем сейчас: отправить случайный мем",
-        reply_markup=markup
-    )
-
-@bot.message_handler(func=lambda message: message.text == '🚀 Запустить мемы')
-def start_memes_button(message):
-    meme_sender.start_meme_scheduler(message.chat.id)
-    bot.reply_to(message, "✅ Мемы запущены! Отправка в 9:00, 15:00 и 20:00 МСК")
-
-@bot.message_handler(func=lambda message: message.text == '🛑 Остановить мемы')
-def stop_memes_button(message):
-    meme_sender.stop_meme_scheduler()
-    bot.reply_to(message, "🛑 Мемы отключены")
-
-@bot.message_handler(func=lambda message: message.text == '😂 Мем сейчас')
-def send_meme_button(message):
-    bot.send_chat_action(message.chat.id, 'upload_photo')
-    meme_sender.send_meme_now()
 
 #--------------------------------------------------------------------------------------------
 # Здесь кнопки для статистики
