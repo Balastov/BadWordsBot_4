@@ -1,0 +1,90 @@
+name: Deploy Bot to Cloud.ru (systemd)
+
+# Триггер: при push в main ветку
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. Проверяем код из репозитория
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      # 2. Подключаемся к серверу по SSH и выполняем деплой
+      - name: Deploy to Cloud.ru VM
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        
+        run: |
+          # Создаем временный файл с приватным ключом
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # Добавляем хост в known_hosts
+          ssh-keyscan -p $SSH_PORT $SSH_HOST >> ~/.ssh/known_hosts 2>/dev/null
+          
+          # Выполняем команды деплоя на сервере
+          ssh -i ~/.ssh/id_rsa -p $SSH_PORT $SSH_USER@$SSH_HOST << 'DEPLOY_EOF'
+            echo "=== Начало деплоя BadWordsBot ==="
+            
+            # Переходим в директорию проекта
+            cd $DEPLOY_PATH || exit 1
+            echo "📂 Рабочая директория: $(pwd)"
+            
+            # Получаем текущее состояние
+            echo "🔍 Текущий коммит:"
+            git log -1 --oneline
+            
+            # Обновляем код из main ветки
+            echo "📥 Обновляем код из репозитория..."
+            git fetch origin main
+            git checkout main
+            git pull origin main
+            
+            echo "✅ Новый коммит:"
+            git log -1 --oneline
+            
+            # Перезагружаем бота через systemd
+            echo "🔄 Перезагружаем сервис BadWords_4..."
+            sudo systemctl restart BadWords_4.service
+            
+            # Проверяем статус сервиса
+            sleep 2
+            if sudo systemctl is-active --quiet BadWords_4.service; then
+              echo "✅ Сервис успешно запущен!"
+              echo "📊 Статус сервиса:"
+              sudo systemctl status BadWords_4.service --no-pager
+            else
+              echo "❌ Ошибка: сервис не запущен!"
+              echo "📋 Логи ошибки:"
+              sudo journalctl -u BadWords_4.service -n 50 --no-pager
+              exit 1
+            fi
+            
+            echo "=== Деплой завершен успешно ==="
+          DEPLOY_EOF
+      
+      # 3. Проверяем результат и отправляем статус
+      - name: Check deployment status
+        if: success()
+        run: |
+          echo "✅ Деплой завершен успешно!"
+          echo "📤 Бот обновлен и перезагружен на Cloud.ru VM"
+      
+      - name: Deployment failed
+        if: failure()
+        run: |
+          echo "❌ Ошибка при деплое!"
+          echo "🔍 Проверьте SSH доступ и наличие файла BadWords_4.service"
+          exit 1
