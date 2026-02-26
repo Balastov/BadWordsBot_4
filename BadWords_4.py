@@ -310,7 +310,12 @@ def contains_bad_words(text):
 
 @bot.message_handler(commands=['start'])
 def handle_start(message):
+    # Автоматически запускаем ежедневные события и мемы
+    daily_events.start_daily_scheduler(message.chat.id)
+    meme_sender.start_meme_scheduler(message.chat.id)
+    
     show_main_menu(message.chat.id, "🤖 Главное меню:")
+    bot.send_message(message.chat.id, "✅ Запущены ежедневные события (8:00 МСК) и мемы (9:00, 15:00, 20:00 МСК)!")
 
 # Команда для запуска ежедневных событий
 @bot.message_handler(commands=['start_events'])
