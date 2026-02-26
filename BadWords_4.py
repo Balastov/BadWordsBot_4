@@ -267,8 +267,9 @@ def show_main_menu(chat_id, message_text="🤖 Главное меню"):
     btn3 = telebot.types.KeyboardButton('Start Events')
     btn4 = telebot.types.KeyboardButton('Шутка за 300')
     btn5 = telebot.types.KeyboardButton('Статистика')
+    btn6 = telebot.types.KeyboardButton('🎬 Мемы')
 
-    markup.add(btn1, btn2, btn3, btn4, btn5)
+    markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
 
     bot.send_message(chat_id, message_text, reply_markup=markup)
 
@@ -623,6 +624,18 @@ def back_from_admin(message):
 
 
 
+
+#--------------------------------------------------------------------------------------------
+# Здесь кнопки для статистики
+
+#--------------------------------------------------------------------------------------------
+# Здесь кнопка для отправки мема
+
+@bot.message_handler(func=lambda message: message.text == '🎬 Мемы')
+def send_meme_from_menu(message):
+    """Отправляет случайный мем при нажатии кнопки"""
+    bot.send_chat_action(message.chat.id, 'upload_photo')
+    meme_sender.send_meme_now()
 
 #--------------------------------------------------------------------------------------------
 # Здесь кнопки для статистики
