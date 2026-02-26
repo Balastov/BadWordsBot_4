@@ -633,7 +633,7 @@ def back_from_admin(message):
 
 @bot.message_handler(func=lambda message: message.text == 'Мемы')
 def send_meme_from_menu(message):
-    """Отправляет случайный мем при нажатии кнопки"""
+    """Отправляет случайный мем при нажатии кнопки!"""
     bot.send_chat_action(message.chat.id, 'upload_photo')
     meme_sender.send_meme_now()
 
