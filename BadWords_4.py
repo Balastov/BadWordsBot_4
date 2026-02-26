@@ -345,7 +345,7 @@ def stop_memes(message):
 def send_meme_now(message):
     bot.send_chat_action(message.chat.id, 'upload_photo')
     meme_sender.send_meme_now()
-    bot.reply_to(message, "🎬 Мем отправлен!")
+    bot.reply_to(message, "Ололо! Мем отправлен!")
 
 @bot.message_handler(func=lambda message: message.text == 'Admin')
 def test_menu(message):
