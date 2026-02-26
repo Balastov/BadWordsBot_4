@@ -29,13 +29,12 @@ class MemeSender:
             time_obj(20, 0)    # 20:00
         ]
         
-        # Источники мемов
+        # Источники мемов (без Reddit)
         self.meme_sources = [
-            ('VK', self._get_meme_from_vk),
-            ('Pikabu', self._get_meme_from_pikabu),
             ('Telegram', self._get_meme_from_telegram_channels),
-            ('Reddit', self._get_meme_from_reddit),
+            ('Pikabu', self._get_meme_from_pikabu),
             ('Imgur', self._get_meme_from_imgur),
+            ('VK', self._get_meme_from_vk),
         ]
         
         self._init_meme_cache_db()
@@ -222,21 +221,25 @@ class MemeSender:
         try:
             url = "https://pikabu.ru/tag/мемы/new/"
             headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
             
-            response = requests.get(url, headers=headers, timeout=10)
+            response = requests.get(url, headers=headers, timeout=15)
             response.raise_for_status()
             
             soup = BeautifulSoup(response.text, 'html.parser')
             
-            # Ищем изображения в постах
+            # Ищем изображения в постах (чистые URL)
             images = soup.find_all('img', class_='story__image')
-            if images:
-                img_url = images[0].get('src')
-                if img_url:
-                    if img_url.startswith('//'):
-                        img_url = 'https:' + img_url
+            if not images:
+                # Пытаемся вытягивать по другому селектору
+                images = soup.find_all('img', class_='image__pic')
+            
+            for img in images:
+                img_url = img.get('src') or img.get('data-src')
+                if img_url and ('pikabu' in img_url or 'sun' in img_url):
+                    if img_url.startswith('//') or img_url.startswith('/'):
+                        img_url = 'https:' + img_url if img_url.startswith('//') else 'https://pikabu.ru' + img_url
                     return img_url
             
             return None
@@ -245,19 +248,21 @@ class MemeSender:
             return None
     
     def _get_meme_from_telegram_channels(self):
-        """Получает мем из открытых Telegram каналов (через web.telegram.org)"""
+        """Получает мем из открытых Telegram каналов"""
         try:
             # Используем открытые каналы с мемами
             channels = [
                 'https://t.me/s/toprusmemes',
-                'https://t.me/s/Memes_2024',
-                'https://t.me/s/russian_memes'
+                'https://t.me/s/best_memes_ru',
+                'https://t.me/s/russian_memes',
+                'https://t.me/s/memes_by_me_v2'
             ]
             
             channel = random.choice(channels)
-            response = requests.get(channel, headers={
-                'User-Agent': 'Mozilla/5.0'
-            }, timeout=10)
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+            response = requests.get(channel, headers=headers, timeout=15)
             response.raise_for_status()
             
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -265,75 +270,44 @@ class MemeSender:
             # Ищем изображения
             images = soup.find_all('img', class_='tgme_widget_message_image')
             if images:
-                img_url = images[0].get('src')
-                if img_url:
-                    return img_url
+                for img in images:
+                    img_url = img.get('src')
+                    if img_url and ('telegram' in img_url or 'cdn' in img_url):
+                        return img_url
             
             return None
         except Exception as e:
             logger.warning(f"⚠️ Ошибка Telegram: {e}")
             return None
-    
-    def _get_meme_from_reddit(self):
-        """Получает мем из Reddit (русские сообщества)"""
-        try:
-            # Используем r/Pikabu, r/russian_memes и т.д.
-            subreddits = ['Pikabu', 'russian_memes', 'RussiaAskReddit']
-            subreddit = random.choice(subreddits)
-            
-            url = f"https://www.reddit.com/r/{subreddit}/top.json?t=day&limit=50"
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-            }
-            
-            response = requests.get(url, headers=headers, timeout=10)
-            response.raise_for_status()
-            
-            data = response.json()
-            posts = data.get('data', {}).get('children', [])
-            
-            # Ищем посты с изображениями
-            for post in posts:
-                post_data = post.get('data', {})
-                if post_data.get('is_video') or not post_data.get('url'):
-                    continue
-                
-                img_url = post_data.get('url')
-                if img_url and (img_url.endswith('.jpg') or img_url.endswith('.png') or 'i.redd.it' in img_url):
-                    return img_url
-            
-            return None
-        except Exception as e:
-            logger.warning(f"⚠️ Ошибка Reddit: {e}")
-            return None
+
     
     def _get_meme_from_imgur(self):
         """Получает случайное изображение из Imgur"""
         try:
-            # Используем Imgur без API (публичные изображения)
-            # Imgur Random: https://imgur.com/random
             url = "https://imgur.com/random"
             headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
             
-            response = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
+            response = requests.get(url, headers=headers, timeout=15, allow_redirects=True)
             response.raise_for_status()
             
             soup = BeautifulSoup(response.text, 'html.parser')
             
-            # Ищем основное изображение
-            img = soup.find('img', class_='meme')
-            if img and img.get('src'):
-                img_url = img.get('src')
-                if img_url.startswith('//'):
-                    img_url = 'https:' + img_url
+            # Пытаемся найти meta
+            meta_tag = soup.find('meta', property='og:image')
+            if meta_tag and meta_tag.get('content'):
+                img_url = meta_tag.get('content')
                 return img_url
             
             # Альтернативный поиск
-            meta_tag = soup.find('meta', property='og:image')
-            if meta_tag and meta_tag.get('content'):
-                return meta_tag.get('content')
+            images = soup.find_all('img')
+            for img in images:
+                src = img.get('src') or img.get('data-src')
+                if src and 'i.imgur.com' in src:
+                    if src.startswith('//'):
+                        src = 'https:' + src
+                    return src
             
             return None
         except Exception as e:
