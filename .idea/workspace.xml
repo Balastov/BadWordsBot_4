@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ec44b239-f116-49af-9595-190af0ffd040" name="Changes" comment="Убрал вызов по собаке в обработчик стикеров" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Capitan Quazar" />
+      </list>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Balastov&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:Balastov/BadWordsBot_4.git&quot;,
+    &quot;accountId&quot;: &quot;ca55f3b8-4556-4264-b076-9953aca687fa&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="32bUXnTnDsVcdHa4hyJbIMWxVtS" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.BadWords_4.executor": "Run",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "#1 on dev",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="BadWordsBot_4" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-PY-252.27397.106" />
+        <option value="bundled-python-sdk-4e2b1448bda8-9a97661f3031-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.27397.106" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ec44b239-f116-49af-9595-190af0ffd040" name="Changes" comment="" />
+      <created>1757688807610</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1757688807610</updated>
+      <workItem from="1759644056492" duration="47746000" />
+      <workItem from="1763451773810" duration="1251000" />
+      <workItem from="1765194109838" duration="51222000" />
+      <workItem from="1766874240137" duration="7651000" />
+      <workItem from="1767525307192" duration="22443000" />
+      <workItem from="1768910330722" duration="33000" />
+      <workItem from="1769006832146" duration="6485000" />
+    </task>
+    <task id="LOCAL-00001" summary="Test 2">
+      <option name="closed" value="true" />
+      <created>1757870483018</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1757870483019</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Добавил матерных слов">
+      <option name="closed" value="true" />
+      <created>1759645513590</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1759645513590</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Добавил исключений">
+      <option name="closed" value="true" />
+      <created>1759646093194</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1759646093194</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Создал файл для вопросов, начал его заполнять">
+      <option name="closed" value="true" />
+      <created>1760507822131</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1760507822131</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Создал файл для вопросов, начал его заполнять">
+      <option name="closed" value="true" />
+      <created>1760531377974</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1760531377974</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Создал файл для вопросов, начал его заполнять">
+      <option name="closed" value="true" />
+      <created>1760531583355</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1760531583355</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Создал файл для вопросов, начал его заполнять">
+      <option name="closed" value="true" />
+      <created>1760532009468</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1760532009468</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Создал файл для вопросов, начал его заполнять">
+      <option name="closed" value="true" />
+      <created>1760532295244</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1760532295244</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Создал файл для вопросов, начал его заполнять">
+      <option name="closed" value="true" />
+      <created>1760532555837</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1760532555837</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Создал файл для вопросов, начал его заполнять">
+      <option name="closed" value="true" />
+      <created>1760532640625</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1760532640625</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Создал файл для вопросов, начал его заполнять">
+      <option name="closed" value="true" />
+      <created>1760532959031</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1760532959031</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Создал файл для вопросов, начал его заполнять">
+      <option name="closed" value="true" />
+      <created>1760533131767</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1760533131767</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Добавил функцию вероятности ответа. Добавил это в ответ на мат">
+      <option name="closed" value="true" />
+      <created>1760555977753</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1760555977753</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Закомментировал Quwstioner">
+      <option name="closed" value="true" />
+      <created>1760556290816</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1760556290816</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Закомментировал Quwstioner">
+      <option name="closed" value="true" />
+      <created>1760556575884</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1760556575884</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Обновил вероятностный ответ на мат">
+      <option name="closed" value="true" />
+      <created>1760556894304</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1760556894304</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Обновил вероятностный ответ на мат">
+      <option name="closed" value="true" />
+      <created>1760557964723</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1760557964723</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Обновил вероятностный ответ на нет и нэ">
+      <option name="closed" value="true" />
+      <created>1760558238617</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1760558238617</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Обновил вероятностный ответ на да">
+      <option name="closed" value="true" />
+      <created>1760558566866</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1760558566866</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Обновил вероятностный ответ на ага">
+      <option name="closed" value="true" />
+      <created>1760558821911</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1760558821911</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Добавил файл StickerCounter">
+      <option name="closed" value="true" />
+      <created>1765613201245</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1765613201245</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Пара ошибок в СтикерКаунтере">
+      <option name="closed" value="true" />
+      <created>1765614391975</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1765614391975</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Внёс изменения в BadWords_4 и немного в StickerCounter.py">
+      <option name="closed" value="true" />
+      <created>1766306030532</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1766306030532</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Хватит поздравлять Утку с ДР">
+      <option name="closed" value="true" />
+      <created>1766306266916</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1766306266916</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Сделал отдельные кнопки для статистики, перенёс туда матершинников и переименовал с переписи на топ">
+      <option name="closed" value="true" />
+      <created>1766407106290</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1766407106290</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Сделал отдельные кнопки для статистики, перенёс туда матершинников и переименовал с переписи на топ">
+      <option name="closed" value="true" />
+      <created>1766420236089</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1766420236089</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Передвинул кнопки для статистики, перенёс туда матершинников и переименовал с переписи на топ">
+      <option name="closed" value="true" />
+      <created>1768891088061</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1768891088062</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Закомментил стикеры топ как функцию 765 строка">
+      <option name="closed" value="true" />
+      <created>1768892242992</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1768892242992</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Переименовал кнопки в Статистике">
+      <option name="closed" value="true" />
+      <created>1768892521161</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1768892521161</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Переименовал кнопки в Статистике">
+      <option name="closed" value="true" />
+      <created>1768893160970</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1768893160970</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Улучшил add_sticker">
+      <option name="closed" value="true" />
+      <created>1768893392585</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1768893392585</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Добавил отладочную печать в обработчик стикеров">
+      <option name="closed" value="true" />
+      <created>1768893486601</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1768893486601</updated>
+    </task>
+    <task id="LOCAL-00033" summary="Убрал вызов по собаке в обработчик стикеров">
+      <option name="closed" value="true" />
+      <created>1768893553835</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1768893553835</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Test 2" />
+    <MESSAGE value="Добавил матерных слов" />
+    <MESSAGE value="Добавил исключений" />
+    <MESSAGE value="Создал файл для вопросов, начал его заполнять" />
+    <MESSAGE value="Добавил функцию вероятности ответа. Добавил это в ответ на мат" />
+    <MESSAGE value="Закомментировал Quwstioner" />
+    <MESSAGE value="Обновил вероятностный ответ на мат" />
+    <MESSAGE value="Обновил вероятностный ответ на нет и нэ" />
+    <MESSAGE value="Обновил вероятностный ответ на да" />
+    <MESSAGE value="Обновил вероятностный ответ на ага" />
+    <MESSAGE value="Добавил файл StickerCounter" />
+    <MESSAGE value="Пара ошибок в СтикерКаунтере" />
+    <MESSAGE value="Внёс изменения в BadWords_4 и немного в StickerCounter.py" />
+    <MESSAGE value="Хватит поздравлять Утку с ДР" />
+    <MESSAGE value="Сделал отдельные кнопки для статистики, перенёс туда матершинников и переименовал с переписи на топ" />
+    <MESSAGE value="Передвинул кнопки для статистики, перенёс туда матершинников и переименовал с переписи на топ" />
+    <MESSAGE value="Закомментил стикеры топ как функцию 765 строка" />
+    <MESSAGE value="Переименовал кнопки в Статистике" />
+    <MESSAGE value="Улучшил add_sticker" />
+    <MESSAGE value="Добавил отладочную печать в обработчик стикеров" />
+    <MESSAGE value="Убрал вызов по собаке в обработчик стикеров" />
+    <option name="LAST_COMMIT_MESSAGE" value="Убрал вызов по собаке в обработчик стикеров" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/BadWordsBot_4$main.coverage" NAME="main Coverage Results" MODIFIED="1768894344516" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  </component>
+</project>
