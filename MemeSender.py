@@ -8,7 +8,9 @@ import json
 from bs4 import BeautifulSoup
 import logging
 
-# Настройка логирования
+from config import MEME_CACHE_DB_PATH
+
+# Настройка логирования (основная конфигурация может быть переопределена снаружи)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -42,7 +44,7 @@ class MemeSender:
     def _init_meme_cache_db(self):
         """Инициализирует БД для кески отправленных мемов"""
         try:
-            conn = sqlite3.connect('meme_cache.sqlite')
+            conn = sqlite3.connect(MEME_CACHE_DB_PATH)
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -64,7 +66,7 @@ class MemeSender:
     def _is_meme_sent(self, meme_url):
         """Проверяет, был ли мем уже отправлен"""
         try:
-            conn = sqlite3.connect('meme_cache.sqlite')
+            conn = sqlite3.connect(MEME_CACHE_DB_PATH)
             cursor = conn.cursor()
             
             cursor.execute('SELECT 1 FROM sent_memes WHERE url = ?', (meme_url,))
@@ -79,7 +81,7 @@ class MemeSender:
     def _save_sent_meme(self, meme_url, source):
         """Сохраняет отправленный мем в кеш"""
         try:
-            conn = sqlite3.connect('meme_cache.sqlite')
+            conn = sqlite3.connect(MEME_CACHE_DB_PATH)
             cursor = conn.cursor()
             
             meme_id = f"{source}_{int(datetime.now().timestamp())}"

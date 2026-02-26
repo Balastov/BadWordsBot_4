@@ -2,8 +2,11 @@ import sqlite3
 import os
 from datetime import datetime
 
+from config import STICKER_DB_PATH
+
+
 class StickerCounter:
-    def __init__(self, db_path='sticker_counter.sqlite'):
+    def __init__(self, db_path: str = STICKER_DB_PATH):
         self.db_path = db_path
         self.init_db()
 

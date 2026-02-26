@@ -1,11 +1,13 @@
 import sqlite3
 from datetime import datetime
 
+from config import BAD_SCORE_DB_PATH
+
 
 # Инициализация базы данных для счётчика матов
-def init_bad_score_db():
+def init_bad_score_db(db_path: str = BAD_SCORE_DB_PATH):
     try:
-        conn = sqlite3.connect('bad_score.sqlite')
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -31,9 +33,9 @@ def init_bad_score_db():
 
 
 # Функция для увеличения счёта матов
-def increase_bad_score(user_id, username, first_name, last_name, chat_id):
+def increase_bad_score(user_id, username, first_name, last_name, chat_id, db_path: str = BAD_SCORE_DB_PATH):
     try:
-        conn = sqlite3.connect('bad_score.sqlite')
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
         current_time = datetime.now().isoformat()
@@ -70,9 +72,9 @@ def increase_bad_score(user_id, username, first_name, last_name, chat_id):
 
 
 # Функция для получения текущего счёта
-def get_bad_score(user_id, chat_id):
+def get_bad_score(user_id, chat_id, db_path: str = BAD_SCORE_DB_PATH):
     try:
-        conn = sqlite3.connect('bad_score.sqlite')
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
         cursor.execute('SELECT score FROM user_scores WHERE user_id = ? AND chat_id = ?',
@@ -88,9 +90,9 @@ def get_bad_score(user_id, chat_id):
 
 
 # Функция для получения топа нарушителей
-def get_top_bad_scores(chat_id, limit=10):
+def get_top_bad_scores(chat_id, limit=10, db_path: str = BAD_SCORE_DB_PATH):
     try:
-        conn = sqlite3.connect('bad_score.sqlite')
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
         cursor.execute('''
