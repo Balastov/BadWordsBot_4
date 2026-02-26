@@ -14,8 +14,8 @@ import time
 
 from DailyEvents import DailyEvents
 from StickerCounter import StickerCounter
+from MemeSender import MemeSender
 # from QuestionsSender import QuestionsSender
-# from MemeSender import MemeSender
 # import os 
 
 # import random
@@ -25,6 +25,7 @@ from StickerCounter import StickerCounter
 bot = telebot.TeleBot('8384870189:AAEViu4Ee_0jD6-SU7F6TQMHIJCLUyT-SI4')
 daily_events = DailyEvents(bot)
 sticker_counter = StickerCounter()
+meme_sender = MemeSender(bot)
 
 # тест 2
 #-------------------------------------------------------------------------------------------------------------------
@@ -264,11 +265,11 @@ def show_main_menu(chat_id, message_text="🤖 Главное меню"):
     btn1 = telebot.types.KeyboardButton('Admin')
     btn2 = telebot.types.KeyboardButton('Играть в кампуктер')
     btn3 = telebot.types.KeyboardButton('Start Events')
-    #btn4 = telebot.types.KeyboardButton('Перепись матершинников')
     btn4 = telebot.types.KeyboardButton('Шутка за 300')
     btn5 = telebot.types.KeyboardButton('Статистика')
+    btn6 = telebot.types.KeyboardButton('🎬 Мемы')
 
-    markup.add(btn1, btn2, btn3, btn4, btn5)
+    markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
 
     bot.send_message(chat_id, message_text, reply_markup=markup)
 
@@ -321,6 +322,25 @@ def start_daily_events(message):
 @bot.message_handler(commands=['events'])
 def send_events_now(message):
     daily_events.send_daily_event(message.chat.id)
+
+# Команда для запуска отправки мемов
+@bot.message_handler(commands=['start_memes'])
+def start_memes(message):
+    meme_sender.start_meme_scheduler(message.chat.id)
+    bot.reply_to(message, "✅ Мемы активированы! Буду отправлять в 9:00, 15:00 и 20:00 по МСК")
+
+# Команда для остановки отправки мемов
+@bot.message_handler(commands=['stop_memes'])
+def stop_memes(message):
+    meme_sender.stop_meme_scheduler()
+    bot.reply_to(message, "🛑 Мемы отключены")
+
+# Команда для отправки мема прямо сейчас
+@bot.message_handler(commands=['meme'])
+def send_meme_now(message):
+    bot.send_chat_action(message.chat.id, 'upload_photo')
+    meme_sender.send_meme_now()
+    bot.reply_to(message, "🎬 Мем отправлен!")
 
 @bot.message_handler(func=lambda message: message.text == 'Admin')
 def test_menu(message):
@@ -597,6 +617,45 @@ def test_4_action(message):
 def back_from_admin(message):
     show_main_menu(message.chat.id, "🤖 Главное меню:")
 
+
+#--------------------------------------------------------------------------------------------
+# Здесь кнопки для управления мемами
+
+@bot.message_handler(func=lambda message: message.text == '🎬 Мемы')
+def memes_menu(message):
+    """Показывает подменю управления мемами"""
+    markup = telebot.types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+
+    btn1 = telebot.types.KeyboardButton('🚀 Запустить мемы')
+    btn2 = telebot.types.KeyboardButton('🛑 Остановить мемы')
+    btn3 = telebot.types.KeyboardButton('😂 Мем сейчас')
+    btn_back = telebot.types.KeyboardButton('🔙 Назад')
+
+    markup.add(btn1, btn2, btn3, btn_back)
+
+    bot.send_message(
+        message.chat.id,
+        "🎬 Управление мемами:\n"
+        "- Запустить мемы: отправка в 9:00, 15:00, 20:00 МСК\n"
+        "- Остановить мемы: деактивировать отправку\n"
+        "- Мем сейчас: отправить случайный мем",
+        reply_markup=markup
+    )
+
+@bot.message_handler(func=lambda message: message.text == '🚀 Запустить мемы')
+def start_memes_button(message):
+    meme_sender.start_meme_scheduler(message.chat.id)
+    bot.reply_to(message, "✅ Мемы запущены! Отправка в 9:00, 15:00 и 20:00 МСК")
+
+@bot.message_handler(func=lambda message: message.text == '🛑 Остановить мемы')
+def stop_memes_button(message):
+    meme_sender.stop_meme_scheduler()
+    bot.reply_to(message, "🛑 Мемы отключены")
+
+@bot.message_handler(func=lambda message: message.text == '😂 Мем сейчас')
+def send_meme_button(message):
+    bot.send_chat_action(message.chat.id, 'upload_photo')
+    meme_sender.send_meme_now()
 
 #--------------------------------------------------------------------------------------------
 # Здесь кнопки для статистики
