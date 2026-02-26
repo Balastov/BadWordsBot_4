@@ -7,7 +7,7 @@ import os
 """
 
 # Токен Telegram‑бота
-TELEGRAM_BOT_TOKEN: str = os.getenv("8384870189:AAEViu4Ee_0jD6-SU7F6TQMHIJCLUyT-SI4", "")
+TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "8384870189:AAEViu4Ee_0jD6-SU7F6TQMHIJCLUyT-SI4")
 
 # Пути к базам данных
 USERS_DB_PATH: str = os.getenv("USERS_DB_PATH", "users_database.sqlite")
