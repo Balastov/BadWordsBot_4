@@ -7,6 +7,7 @@ import sqlite3
 import json
 from bs4 import BeautifulSoup
 import logging
+from io import BytesIO
 
 from config import MEME_CACHE_DB_PATH
 
@@ -139,6 +140,48 @@ class MemeSender:
             
             time.sleep(30)  # Проверяем каждые 30 секунд
     
+    def _send_meme_internal(self, meme_url, source_name):
+        """Внутренняя функция для отправки мема"""
+        try:
+            # Скачиваем изображение и отправляем его как байтовый поток
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+            response = requests.get(meme_url, headers=headers, timeout=30)
+            response.raise_for_status()
+            
+            # Создаем байтовый поток изображения
+            image_stream = BytesIO(response.content)
+            image_stream.name = 'meme.jpg'  # Устанавливаем имя файла
+            
+            self.bot.send_photo(
+                self.chat_id,
+                image_stream,
+                caption=f"😂 Мем из {source_name}\n{datetime.now().strftime('%H:%M МСК')}"
+            )
+            self._save_sent_meme(meme_url, source_name)
+            logger.info(f"✅ Мем от {source_name} отправлен в чат {self.chat_id}")
+            return True
+        except Exception as e:
+            logger.error(f"❌ Ошибка отправки мема: {e}")
+            return False
+    
+    def _send_backup_meme(self, source_name):
+        """Отправляет резервный мем"""
+        try:
+            backup_meme = self._get_backup_russian_meme()
+            if backup_meme:
+                self.bot.send_photo(
+                    self.chat_id,
+                    backup_meme,
+                    caption=f"😂 Резервный мем из {source_name}\n{datetime.now().strftime('%H:%M МСК')}"
+                )
+                logger.info(f"✅ Резервный мем отправлен в чат {self.chat_id}")
+                return True
+        except Exception as e:
+            logger.error(f"❌ Ошибка отправки резервного мема: {e}")
+        return False
+    
     def send_meme_now(self, chat_id=None):
         """Отправляет мем прямо сейчас"""
         try:
@@ -168,21 +211,17 @@ class MemeSender:
                     continue
             
             if meme_url:
-                try:
-                    self.bot.send_photo(
-                        self.chat_id,
-                        meme_url,
-                        caption=f"😂 Мем из {source_name}\n{datetime.now().strftime('%H:%M МСК')}"
-                    )
-                    self._save_sent_meme(meme_url, source_name)
-                    logger.info(f"✅ Мем от {source_name} отправлен в чат {self.chat_id}")
-                except Exception as e:
-                    logger.error(f"❌ Ошибка отправки мема: {e}")
+                # Пытаемся отправить основной мем
+                if not self._send_meme_internal(meme_url, source_name):
+                    # Если основная отправка не удалась, пробуем отправить резервный мем
+                    self._send_backup_meme(source_name)
             else:
                 logger.warning("⚠️ Не удалось получить мем")
         
         except Exception as e:
             logger.error(f"❌ Ошибка в send_meme_now: {e}")
+            # В случае общей ошибки тоже пробуем отправить резервный мем
+            self._send_backup_meme("резервный")
     
     # ======================== ИСТОЧНИКИ МЕМОВ ========================
     
