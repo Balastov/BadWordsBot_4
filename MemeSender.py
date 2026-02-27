@@ -34,6 +34,7 @@ class MemeSender:
         
         # Источники мемов (без Reddit)
         self.meme_sources = [
+            ('Imgflip', self._get_meme_from_imgflip_api),
             ('Telegram', self._get_meme_from_telegram_channels),
             ('Pikabu', self._get_meme_from_pikabu),
             ('Imgur', self._get_meme_from_imgur),
@@ -217,7 +218,8 @@ class MemeSender:
                     # Если основная отправка не удалась, пробуем отправить резервный мем
                     self._send_backup_meme(source_name)
             else:
-                logger.warning("⚠️ Не удалось получить мем")
+                logger.warning("⚠️ Не удалось получить мем из основных источников, отправляем резервный")
+                self._send_backup_meme("резервный")
         
         except Exception as e:
             logger.error(f"❌ Ошибка в send_meme_now: {e}")
@@ -225,7 +227,21 @@ class MemeSender:
             self._send_backup_meme("резервный")
     
     # ======================== ИСТОЧНИКИ МЕМОВ ========================
-    
+
+    def _get_meme_from_imgflip_api(self):
+        """Получает мем через публичный API imgflip (без авторизации)"""
+        try:
+            response = requests.get('https://api.imgflip.com/get_memes', timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            if data.get('success') and data['data']['memes']:
+                meme = random.choice(data['data']['memes'])
+                return meme['url']
+            return None
+        except Exception as e:
+            logger.warning(f"⚠️ Ошибка Imgflip API: {e}")
+            return None
+
     def _get_meme_from_vk(self):
         """Получает мем из VK (парсинг популярного сообщества)"""
         try:
