@@ -127,8 +127,8 @@ class MemeSender:
             # Проверяем, не отправляли ли уже мемы сегодня в эти часы
             if last_sent_date != current_date:
                 for send_time in self.send_times:
-                    # Проверяем, пtiempo текущий час совпадает с временем отправки
-                    if (current_time.hour == send_time.hour and 
+                    # Проверяем, не время ли отправки (совпадает ли текущий час с временем отправки)
+                    if (current_time.hour == send_time.hour and
                         current_time.minute >= send_time.minute and
                         current_time.minute < send_time.minute + 1):
                         
@@ -153,6 +153,7 @@ class MemeSender:
             # Создаем байтовый поток изображения
             image_stream = BytesIO(response.content)
             image_stream.name = 'meme.jpg'  # Устанавливаем имя файла
+            image_stream.seek(0)  # Сбрасываем позицию потока в начало
             
             self.bot.send_photo(
                 self.chat_id,
