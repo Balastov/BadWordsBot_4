@@ -183,7 +183,7 @@ class MemeSender:
         return False
     
     def send_meme_now(self, chat_id=None):
-        """Отправляет мем прямо сейчас"""
+        """Отправляет мем прямо сейчас — всегда отправляет что-то"""
         try:
             # Если передан chat_id, используем его, иначе используем сохраненный
             if chat_id:
@@ -210,27 +210,35 @@ class MemeSender:
                     logger.warning(f"⚠️ Ошибка получения мема из {source_name}: {e}")
                     continue
 
+            # Если мем получен — отправляем
             if meme_url:
-                # Пытаемся отправить основной мем
-                if not self._send_meme_internal(meme_url, source_name):
-                    # Если основная отправка не удалась, пробуем отправить резервный мем
-                    if not self._send_backup_meme(source_name):
-                        # Если и резервный не прошёл — уведомляем текстом
-                        self.bot.send_message(self.chat_id, "😅 Не получилось отправить мем, попробуйте ещё раз!")
-            else:
-                logger.warning("⚠️ Не удалось получить мем из основных источников, отправляем резервный")
-                if not self._send_backup_meme("резервный"):
-                    # Если резервный не прошёл — уведомляем текстом
-                    self.bot.send_message(self.chat_id, "😅 Не получилось отправить мем, попробуйте ещё раз!")
+                if self._send_meme_internal(meme_url, source_name):
+                    logger.info(f"✅ Мем из {source_name} отправлен")
+                    return
+            
+            # Если не получилось — отправляем резервный (всегда!)
+            logger.info("🔄 Отправляем резервный мем")
+            self._send_backup_meme_force()
 
         except Exception as e:
             logger.error(f"❌ Ошибка в send_meme_now: {e}")
-            # В случае общей ошибки — уведомляем текстом
-            try:
-                self.bot.send_message(self.chat_id, "😅 Ошибка при отправке мема. Попробуйте позже!")
-            except:
-                pass
-            self._send_backup_meme("резервный")
+            # В случае общей ошибки — отправляем резервный
+            self._send_backup_meme_force()
+    
+    def _send_backup_meme_force(self):
+        """Принудительная отправка резервного мема — без проверок"""
+        try:
+            backup_meme = self._get_backup_russian_meme()
+            if backup_meme:
+                self.bot.send_photo(
+                    self.chat_id,
+                    backup_meme,
+                    caption=f"😂 Резервный мем\n{datetime.now().strftime('%H:%M МСК')}"
+                )
+                logger.info(f"✅ Резервный мем отправлен в чат {self.chat_id}")
+        except Exception as e:
+            logger.error(f"❌ Ошибка отправки резервного мема: {e}")
+            self.bot.send_message(self.chat_id, "😅 Не получилось отправить мем, попробуйте позже!")
     
     # ======================== ИСТОЧНИКИ МЕМОВ ========================
 

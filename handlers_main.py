@@ -126,5 +126,6 @@ def back_to_main_menu(message) -> None:
 @bot.message_handler(content_types=["text"])
 def collect_users_only(message) -> None:
     """Обработчик для автоматического сбора пользователей (без логики ответа)."""
+    logger.debug(f"📝 Собираем пользователя: {message.from_user.id} - {message.text}")
     auto_collect_users_from_message(message)
 
