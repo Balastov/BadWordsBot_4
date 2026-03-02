@@ -32,13 +32,12 @@ class MemeSender:
             time_obj(20, 0)    # 20:00
         ]
         
-        # Источники мемов
+        # Источники мемов (только надёжные)
         self.meme_sources = [
             ('MemeAPI', self._get_meme_from_meme_api),
-            ('Telegram', self._get_meme_from_telegram_channels),
             ('Pikabu', self._get_meme_from_pikabu),
-            ('Imgur', self._get_meme_from_imgur),
-            ('VK', self._get_meme_from_vk),
+            ('Telegram', self._get_meme_from_telegram_channels),
+            ('Random', self._get_random_backup_meme_wrapper),
         ]
         
         self._init_meme_cache_db()
@@ -185,24 +184,24 @@ class MemeSender:
         return False
     
     def send_meme_now(self, chat_id=None):
-        """Отправляет мем прямо сейчас"""
+        """Отправляет мем прямо сейчас — всегда отправляет что-то"""
         try:
             # Если передан chat_id, используем его, иначе используем сохраненный
             if chat_id:
                 self.chat_id = chat_id
-            
+
             if not self.chat_id:
                 logger.error("❌ chat_id не установлен")
                 return
-            
+
             # Пробуем разные источники
             meme_url = None
             source_name = None
-            
+
             # Перемешиваем источники для разнообразия
             sources = list(self.meme_sources)
             random.shuffle(sources)
-            
+
             for source_name, source_func in sources:
                 try:
                     meme_url = source_func()
@@ -211,20 +210,36 @@ class MemeSender:
                 except Exception as e:
                     logger.warning(f"⚠️ Ошибка получения мема из {source_name}: {e}")
                     continue
-            
+
+            # Если мем получен — отправляем
             if meme_url:
-                # Пытаемся отправить основной мем
-                if not self._send_meme_internal(meme_url, source_name):
-                    # Если основная отправка не удалась, пробуем отправить резервный мем
-                    self._send_backup_meme(source_name)
-            else:
-                logger.warning("⚠️ Не удалось получить мем из основных источников, отправляем резервный")
-                self._send_backup_meme("резервный")
-        
+                if self._send_meme_internal(meme_url, source_name):
+                    logger.info(f"✅ Мем из {source_name} отправлен")
+                    return
+            
+            # Если не получилось — отправляем резервный (всегда!)
+            logger.info("🔄 Отправляем резервный мем")
+            self._send_backup_meme_force()
+
         except Exception as e:
             logger.error(f"❌ Ошибка в send_meme_now: {e}")
-            # В случае общей ошибки тоже пробуем отправить резервный мем
-            self._send_backup_meme("резервный")
+            # В случае общей ошибки — отправляем резервный
+            self._send_backup_meme_force()
+    
+    def _send_backup_meme_force(self):
+        """Принудительная отправка резервного мема — без проверок"""
+        try:
+            backup_meme = self._get_backup_russian_meme()
+            if backup_meme:
+                self.bot.send_photo(
+                    self.chat_id,
+                    backup_meme,
+                    caption=f"😂 Резервный мем\n{datetime.now().strftime('%H:%M МСК')}"
+                )
+                logger.info(f"✅ Резервный мем отправлен в чат {self.chat_id}")
+        except Exception as e:
+            logger.error(f"❌ Ошибка отправки резервного мема: {e}")
+            self.bot.send_message(self.chat_id, "😅 Не получилось отправить мем, попробуйте позже!")
     
     # ======================== ИСТОЧНИКИ МЕМОВ ========================
 
@@ -242,38 +257,10 @@ class MemeSender:
             logger.warning(f"⚠️ Ошибка meme-api.com: {e}")
             return None
 
-    def _get_meme_from_vk(self):
-        """Получает мем из VK (парсинг популярного сообщества)"""
-        try:
-            # Используем открытый API VK для получения фото из сообщества
-            # Сообщество: mems.for.you (https://vk.com/mems.for.you)
-            url = "https://api.vk.com/method/wall.get"
-            params = {
-                'domain': 'mems.for.you',
-                'count': 100,
-                'v': '5.131',
-                'access_token': 'SERVICE_TOKEN'  # Требует токен, используем fallback
-            }
-            
-            # Fallback: парсим через requests/BeautifulSoup
-            response = requests.get(
-                'https://vk.com/mems.for.you',
-                headers={'User-Agent': 'Mozilla/5.0'},
-                timeout=10
-            )
-            response.raise_for_status()
-            
-            # На실際 практике нужен токен; возвращаем заранее подготовленные URLs
-            vk_meme_urls = [
-                'https://sun9-10.userapi.com/c629625/v629625000/4e5fb/AjvVYVfSHn8.jpg',
-                'https://sun9-30.userapi.com/c628425/v628425000/8a70e/nnFaOvb5Aig.jpg',
-                'https://sun9-32.userapi.com/c629104/v629104000/5bcff/qFzJL1L-pqc.jpg'
-            ]
-            return random.choice(vk_meme_urls)
-        except Exception as e:
-            logger.warning(f"⚠️ Ошибка VK: {e}")
-            return None
-    
+    def _get_random_backup_meme_wrapper(self):
+        """Обёртка для резервных мемов — работает всегда"""
+        return self._get_backup_russian_meme()
+
     def _get_meme_from_pikabu(self):
         """Получает мем с Пикабу"""
         try:
@@ -375,9 +362,11 @@ class MemeSender:
     def _get_backup_russian_meme(self):
         """Резервный источник: встроенные мемы"""
         backup_memes = [
-            'https://sun9-10.userapi.com/c629625/v629625000/4e5fb/AjvVYVfSHn8.jpg',
             'https://i.imgflip.com/63uxer.jpg',
-            'https://i.imgflip.com/7j8qkx.jpg'
+            'https://i.imgflip.com/7j8qkx.jpg',
+            'https://i.imgflip.com/2/648je.jpg',
+            'https://i.imgflip.com/1/30b1gx.jpg',
+            'https://i.imgflip.com/1/g8e40.jpg',
         ]
         return random.choice(backup_memes)
 
