@@ -227,14 +227,22 @@ class MemeSender:
             self._send_backup_meme_force()
     
     def _send_backup_meme_force(self):
-        """Принудительная отправка резервного мема — без проверок"""
+        """Принудительная отправка резервного мема — скачиваем сами, не через Telegram"""
         try:
-            backup_meme = self._get_backup_russian_meme()
-            if backup_meme:
+            backup_url = self._get_backup_russian_meme()
+            if backup_url:
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                }
+                response = requests.get(backup_url, headers=headers, timeout=15)
+                response.raise_for_status()
+                image_stream = BytesIO(response.content)
+                image_stream.name = 'meme.jpg'
+                image_stream.seek(0)
                 self.bot.send_photo(
                     self.chat_id,
-                    backup_meme,
-                    caption=f"😂 Резервный мем\n{datetime.now().strftime('%H:%M МСК')}"
+                    image_stream,
+                    caption=f"😂 Мем\n{datetime.now().strftime('%H:%M МСК')}"
                 )
                 logger.info(f"✅ Резервный мем отправлен в чат {self.chat_id}")
         except Exception as e:
@@ -364,9 +372,9 @@ class MemeSender:
         backup_memes = [
             'https://i.imgflip.com/63uxer.jpg',
             'https://i.imgflip.com/7j8qkx.jpg',
-            'https://i.imgflip.com/2/648je.jpg',
-            'https://i.imgflip.com/1/30b1gx.jpg',
-            'https://i.imgflip.com/1/g8e40.jpg',
+            'https://i.imgflip.com/26jxvz.jpg',
+            'https://i.imgflip.com/4t0m5.jpg',
+            'https://i.imgflip.com/1o00in.jpg',
         ]
         return random.choice(backup_memes)
 
