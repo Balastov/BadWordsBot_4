@@ -1,3 +1,4 @@
+import re
 import requests
 import random
 import threading
@@ -32,12 +33,11 @@ class MemeSender:
             time_obj(20, 0)    # 20:00
         ]
         
-        # Источники мемов (только надёжные)
+        # Источники мемов (русскоязычные — в приоритете)
         self.meme_sources = [
-            ('MemeAPI', self._get_meme_from_meme_api),
-            ('Pikabu', self._get_meme_from_pikabu),
+            ('Joyreactor', self._get_meme_from_joyreactor),
             ('Telegram', self._get_meme_from_telegram_channels),
-            ('Random', self._get_random_backup_meme_wrapper),
+            ('MemeAPI', self._get_meme_from_meme_api),
         ]
         
         self._init_meme_cache_db()
@@ -194,15 +194,11 @@ class MemeSender:
                 logger.error("❌ chat_id не установлен")
                 return
 
-            # Пробуем разные источники
+            # Пробуем источники по приоритету (русские — первые)
             meme_url = None
             source_name = None
 
-            # Перемешиваем источники для разнообразия
-            sources = list(self.meme_sources)
-            random.shuffle(sources)
-
-            for source_name, source_func in sources:
+            for source_name, source_func in self.meme_sources:
                 try:
                     meme_url = source_func()
                     if meme_url and not self._is_meme_sent(meme_url):
@@ -300,34 +296,61 @@ class MemeSender:
             logger.warning(f"⚠️ Ошибка Pikabu: {e}")
             return None
     
+    def _get_meme_from_joyreactor(self):
+        """Получает мем с Joyreactor (русский мем-сайт, серверный рендеринг)"""
+        try:
+            url = "https://joyreactor.cc/tag/%D0%BC%D0%B5%D0%BC%D1%8B"  # /tag/мемы
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+            response = requests.get(url, headers=headers, timeout=15)
+            response.raise_for_status()
+
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            urls = []
+            for img in soup.find_all('img'):
+                src = img.get('src', '')
+                if 'reactor.cc' in src and src.endswith(('.jpg', '.jpeg', '.png')):
+                    if src.startswith('//'):
+                        src = 'https:' + src
+                    urls.append(src)
+
+            if urls:
+                return random.choice(urls)
+            return None
+        except Exception as e:
+            logger.warning(f"⚠️ Ошибка Joyreactor: {e}")
+            return None
+
     def _get_meme_from_telegram_channels(self):
         """Получает мем из открытых Telegram каналов"""
         try:
-            # Используем открытые каналы с мемами
             channels = [
                 'https://t.me/s/toprusmemes',
                 'https://t.me/s/best_memes_ru',
                 'https://t.me/s/russian_memes',
                 'https://t.me/s/memes_by_me_v2'
             ]
-            
             channel = random.choice(channels)
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
             response = requests.get(channel, headers=headers, timeout=15)
             response.raise_for_status()
-            
+
             soup = BeautifulSoup(response.text, 'html.parser')
-            
-            # Ищем изображения
-            images = soup.find_all('img', class_='tgme_widget_message_image')
-            if images:
-                for img in images:
-                    img_url = img.get('src')
-                    if img_url and ('telegram' in img_url or 'cdn' in img_url):
-                        return img_url
-            
+
+            # Telegram хранит фото в CSS background-image, а не в <img> тегах
+            urls = []
+            for el in soup.find_all('a', class_='tgme_widget_message_photo_wrap'):
+                style = el.get('style', '')
+                match = re.search(r"background-image:url\('([^']+)'\)", style)
+                if match:
+                    urls.append(match.group(1))
+
+            if urls:
+                return random.choice(urls)
             return None
         except Exception as e:
             logger.warning(f"⚠️ Ошибка Telegram: {e}")
