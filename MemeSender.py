@@ -32,13 +32,12 @@ class MemeSender:
             time_obj(20, 0)    # 20:00
         ]
         
-        # Источники мемов (без Reddit)
+        # Источники мемов (обновлённые)
         self.meme_sources = [
-            ('Imgflip', self._get_meme_from_imgflip_api),
+            ('9GAG', self._get_meme_from_9gag),
             ('Telegram', self._get_meme_from_telegram_channels),
             ('Pikabu', self._get_meme_from_pikabu),
-            ('Imgur', self._get_meme_from_imgur),
-            ('VK', self._get_meme_from_vk),
+            ('VK', self._get_meme_from_vk_groups),
         ]
         
         self._init_meme_cache_db()
@@ -228,52 +227,77 @@ class MemeSender:
     
     # ======================== ИСТОЧНИКИ МЕМОВ ========================
 
-    def _get_meme_from_imgflip_api(self):
-        """Получает мем через публичный API imgflip (без авторизации)"""
+    def _get_meme_from_vk_groups(self):
+        """Получает мем из популярных VK пабликов с мемами"""
         try:
-            response = requests.get('https://api.imgflip.com/get_memes', timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            if data.get('success') and data['data']['memes']:
-                meme = random.choice(data['data']['memes'])
-                return meme['url']
-            return None
-        except Exception as e:
-            logger.warning(f"⚠️ Ошибка Imgflip API: {e}")
-            return None
-
-    def _get_meme_from_vk(self):
-        """Получает мем из VK (парсинг популярного сообщества)"""
-        try:
-            # Используем открытый API VK для получения фото из сообщества
-            # Сообщество: mems.for.you (https://vk.com/mems.for.you)
-            url = "https://api.vk.com/method/wall.get"
-            params = {
-                'domain': 'mems.for.you',
-                'count': 100,
-                'v': '5.131',
-                'access_token': 'SERVICE_TOKEN'  # Требует токен, используем fallback
+            # Популярные VK паблики с мемами (парсинг через t.me/s/ аналог для VK)
+            vk_groups = [
+                'https://vk.com/public_mems',
+                'https://vk.com/memology',
+                'https://vk.com/typical_moscow',
+                'https://vk.com/public78611268',  # Мемы
+                'https://vk.com/public138840058',  # Мемология
+            ]
+            
+            group = random.choice(vk_groups)
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
             
-            # Fallback: парсим через requests/BeautifulSoup
-            response = requests.get(
-                'https://vk.com/mems.for.you',
-                headers={'User-Agent': 'Mozilla/5.0'},
-                timeout=10
-            )
+            response = requests.get(group, headers=headers, timeout=15)
             response.raise_for_status()
             
-            # На실際 практике нужен токен; возвращаем заранее подготовленные URLs
-            vk_meme_urls = [
-                'https://sun9-10.userapi.com/c629625/v629625000/4e5fb/AjvVYVfSHn8.jpg',
-                'https://sun9-30.userapi.com/c628425/v628425000/8a70e/nnFaOvb5Aig.jpg',
-                'https://sun9-32.userapi.com/c629104/v629104000/5bcff/qFzJL1L-pqc.jpg'
-            ]
-            return random.choice(vk_meme_urls)
-        except Exception as e:
-            logger.warning(f"⚠️ Ошибка VK: {e}")
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Ищем изображения в постах
+            images = soup.find_all('img', class_='wall_post_img')
+            if not images:
+                images = soup.find_all('img', attrs={'data-src': True})
+            
+            for img in images:
+                img_url = img.get('src') or img.get('data-src')
+                if img_url and ('userapi' in img_url or 'vk' in img_url):
+                    if img_url.startswith('//'):
+                        img_url = 'https:' + img_url
+                    return img_url
+            
             return None
-    
+        except Exception as e:
+            logger.warning(f"⚠️ Ошибка VK Groups: {e}")
+            return None
+
+    def _get_meme_from_9gag(self):
+        """Получает мем из 9GAG через публичный API"""
+        try:
+            url = "https://9gag.com/v1/group-posts-by-cursor/default/trending"
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'application/json'
+            }
+            
+            response = requests.get(url, headers=headers, timeout=15)
+            response.raise_for_status()
+            
+            data = response.json()
+            posts = data.get('data', {}).get('posts', [])
+            
+            if posts:
+                # Фильтруем только изображения
+                image_posts = [
+                    p for p in posts 
+                    if p.get('type') == 'Photo' and p.get('images', {}).get('image700', {}).get('url')
+                ]
+                
+                if image_posts:
+                    post = random.choice(image_posts)
+                    img_url = post['images']['image700']['url']
+                    return img_url
+            
+            return None
+        except Exception as e:
+            logger.warning(f"⚠️ Ошибка 9GAG: {e}")
+            return None
+
     def _get_meme_from_pikabu(self):
         """Получает мем с Пикабу"""
         try:
@@ -375,9 +399,11 @@ class MemeSender:
     def _get_backup_russian_meme(self):
         """Резервный источник: встроенные мемы"""
         backup_memes = [
-            'https://sun9-10.userapi.com/c629625/v629625000/4e5fb/AjvVYVfSHn8.jpg',
             'https://i.imgflip.com/63uxer.jpg',
-            'https://i.imgflip.com/7j8qkx.jpg'
+            'https://i.imgflip.com/7j8qkx.jpg',
+            'https://i.imgflip.com/2/648je.jpg',
+            'https://i.imgflip.com/1/30b1gx.jpg',
+            'https://i.imgflip.com/1/g8e40.jpg',
         ]
         return random.choice(backup_memes)
 
