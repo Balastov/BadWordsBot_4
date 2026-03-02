@@ -4,7 +4,7 @@ import telebot
 
 from bot_app import bot, daily_events, meme_sender
 from services.jokes_service import get_random_joke
-from services.users_repository import auto_collect_users_from_message, init_users_db
+from services.users_repository import init_users_db
 
 
 logger = logging.getLogger(__name__)
@@ -123,8 +123,4 @@ def back_to_main_menu(message) -> None:
     show_main_menu(message.chat.id, "🤖 Главное меню:")
 
 
-@bot.message_handler(content_types=["text"])
-def collect_users_only(message) -> None:
-    """Обработчик для автоматического сбора пользователей (без логики ответа)."""
-    auto_collect_users_from_message(message)
 

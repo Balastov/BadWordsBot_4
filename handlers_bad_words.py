@@ -2,6 +2,7 @@ import logging
 import random
 
 from bot_app import bot
+from services.users_repository import auto_collect_users_from_message
 from constants import (
     ballov_nemalo,
     bot_answer_aga,
@@ -154,3 +155,8 @@ def handle_aga_word(message) -> None:
         message, bot_response_aga, probability=REPLY_PROB_AGA
     )
 
+
+@bot.message_handler(content_types=["text"])
+def collect_users_only(message) -> None:
+    """Обработчик для автоматического сбора пользователей (без логики ответа)."""
+    auto_collect_users_from_message(message)

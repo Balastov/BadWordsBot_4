@@ -32,9 +32,9 @@ class MemeSender:
             time_obj(20, 0)    # 20:00
         ]
         
-        # Источники мемов (без Reddit)
+        # Источники мемов
         self.meme_sources = [
-            ('Imgflip', self._get_meme_from_imgflip_api),
+            ('MemeAPI', self._get_meme_from_meme_api),
             ('Telegram', self._get_meme_from_telegram_channels),
             ('Pikabu', self._get_meme_from_pikabu),
             ('Imgur', self._get_meme_from_imgur),
@@ -228,18 +228,18 @@ class MemeSender:
     
     # ======================== ИСТОЧНИКИ МЕМОВ ========================
 
-    def _get_meme_from_imgflip_api(self):
-        """Получает мем через публичный API imgflip (без авторизации)"""
+    def _get_meme_from_meme_api(self):
+        """Получает реальный мем через meme-api.com (бесплатный API без авторизации)"""
         try:
-            response = requests.get('https://api.imgflip.com/get_memes', timeout=10)
+            response = requests.get('https://meme-api.com/gimme', timeout=10)
             response.raise_for_status()
             data = response.json()
-            if data.get('success') and data['data']['memes']:
-                meme = random.choice(data['data']['memes'])
-                return meme['url']
+            img_url = data.get('url')
+            if img_url and not data.get('nsfw', False):
+                return img_url
             return None
         except Exception as e:
-            logger.warning(f"⚠️ Ошибка Imgflip API: {e}")
+            logger.warning(f"⚠️ Ошибка meme-api.com: {e}")
             return None
 
     def _get_meme_from_vk(self):
