@@ -32,12 +32,11 @@ class MemeSender:
             time_obj(20, 0)    # 20:00
         ]
         
-        # Источники мемов (обновлённые)
+        # Источники мемов (только надёжные)
         self.meme_sources = [
-            ('9GAG', self._get_meme_from_9gag),
-            ('Telegram', self._get_meme_from_telegram_channels),
             ('Pikabu', self._get_meme_from_pikabu),
-            ('VK', self._get_meme_from_vk_groups),
+            ('Telegram', self._get_meme_from_telegram_channels),
+            ('Random', self._get_random_backup_meme_wrapper),
         ]
         
         self._init_meme_cache_db()
@@ -189,19 +188,19 @@ class MemeSender:
             # Если передан chat_id, используем его, иначе используем сохраненный
             if chat_id:
                 self.chat_id = chat_id
-            
+
             if not self.chat_id:
                 logger.error("❌ chat_id не установлен")
                 return
-            
+
             # Пробуем разные источники
             meme_url = None
             source_name = None
-            
+
             # Перемешиваем источники для разнообразия
             sources = list(self.meme_sources)
             random.shuffle(sources)
-            
+
             for source_name, source_func in sources:
                 try:
                     meme_url = source_func()
@@ -210,93 +209,34 @@ class MemeSender:
                 except Exception as e:
                     logger.warning(f"⚠️ Ошибка получения мема из {source_name}: {e}")
                     continue
-            
+
             if meme_url:
                 # Пытаемся отправить основной мем
                 if not self._send_meme_internal(meme_url, source_name):
                     # Если основная отправка не удалась, пробуем отправить резервный мем
-                    self._send_backup_meme(source_name)
+                    if not self._send_backup_meme(source_name):
+                        # Если и резервный не прошёл — уведомляем текстом
+                        self.bot.send_message(self.chat_id, "😅 Не получилось отправить мем, попробуйте ещё раз!")
             else:
                 logger.warning("⚠️ Не удалось получить мем из основных источников, отправляем резервный")
-                self._send_backup_meme("резервный")
-        
+                if not self._send_backup_meme("резервный"):
+                    # Если резервный не прошёл — уведомляем текстом
+                    self.bot.send_message(self.chat_id, "😅 Не получилось отправить мем, попробуйте ещё раз!")
+
         except Exception as e:
             logger.error(f"❌ Ошибка в send_meme_now: {e}")
-            # В случае общей ошибки тоже пробуем отправить резервный мем
+            # В случае общей ошибки — уведомляем текстом
+            try:
+                self.bot.send_message(self.chat_id, "😅 Ошибка при отправке мема. Попробуйте позже!")
+            except:
+                pass
             self._send_backup_meme("резервный")
     
     # ======================== ИСТОЧНИКИ МЕМОВ ========================
 
-    def _get_meme_from_vk_groups(self):
-        """Получает мем из популярных VK пабликов с мемами"""
-        try:
-            # Популярные VK паблики с мемами (парсинг через t.me/s/ аналог для VK)
-            vk_groups = [
-                'https://vk.com/public_mems',
-                'https://vk.com/memology',
-                'https://vk.com/typical_moscow',
-                'https://vk.com/public78611268',  # Мемы
-                'https://vk.com/public138840058',  # Мемология
-            ]
-            
-            group = random.choice(vk_groups)
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-            
-            response = requests.get(group, headers=headers, timeout=15)
-            response.raise_for_status()
-            
-            soup = BeautifulSoup(response.text, 'html.parser')
-            
-            # Ищем изображения в постах
-            images = soup.find_all('img', class_='wall_post_img')
-            if not images:
-                images = soup.find_all('img', attrs={'data-src': True})
-            
-            for img in images:
-                img_url = img.get('src') or img.get('data-src')
-                if img_url and ('userapi' in img_url or 'vk' in img_url):
-                    if img_url.startswith('//'):
-                        img_url = 'https:' + img_url
-                    return img_url
-            
-            return None
-        except Exception as e:
-            logger.warning(f"⚠️ Ошибка VK Groups: {e}")
-            return None
-
-    def _get_meme_from_9gag(self):
-        """Получает мем из 9GAG через публичный API"""
-        try:
-            url = "https://9gag.com/v1/group-posts-by-cursor/default/trending"
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'Accept': 'application/json'
-            }
-            
-            response = requests.get(url, headers=headers, timeout=15)
-            response.raise_for_status()
-            
-            data = response.json()
-            posts = data.get('data', {}).get('posts', [])
-            
-            if posts:
-                # Фильтруем только изображения
-                image_posts = [
-                    p for p in posts 
-                    if p.get('type') == 'Photo' and p.get('images', {}).get('image700', {}).get('url')
-                ]
-                
-                if image_posts:
-                    post = random.choice(image_posts)
-                    img_url = post['images']['image700']['url']
-                    return img_url
-            
-            return None
-        except Exception as e:
-            logger.warning(f"⚠️ Ошибка 9GAG: {e}")
-            return None
+    def _get_random_backup_meme_wrapper(self):
+        """Обёртка для резервных мемов — работает всегда"""
+        return self._get_backup_russian_meme()
 
     def _get_meme_from_pikabu(self):
         """Получает мем с Пикабу"""
