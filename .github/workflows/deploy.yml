@@ -24,41 +24,57 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-        
+
         run: |
+          echo "🔑 Настраиваем SSH..."
+          
           # Создаем временный файл с приватным ключом
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          
-          # Добавляем хост в known_hosts
-          ssh-keyscan -p $SSH_PORT $SSH_HOST >> ~/.ssh/known_hosts 2>/dev/null
-          
+
+          # Отключаем строгую проверку known_hosts (для CI/CD)
+          echo "Host *" > ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+          echo "  UserKnownHostsFile /dev/null" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
+          # Проверяем подключение
+          echo "🔌 Проверяем SSH-подключение..."
+          if ! ssh -i ~/.ssh/id_rsa -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "echo 'SSH подключён!'"; then
+            echo "❌ Ошибка SSH-подключения!"
+            echo "Проверьте:"
+            echo "  1. SSH_PRIVATE_KEY — правильный приватный ключ"
+            echo "  2. SSH_USER@$SSH_HOST:$SSH_PORT — правильные данные сервера"
+            echo "  3. Ключ добавлен в ~/.ssh/authorized_keys на сервере"
+            exit 1
+          fi
+
           # Выполняем команды деплоя на сервере
-          ssh -i ~/.ssh/id_rsa -p $SSH_PORT $SSH_USER@$SSH_HOST << 'DEPLOY_EOF'
+          ssh -i ~/.ssh/id_rsa -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << DEPLOY_EOF
             echo "=== Начало деплоя BadWordsBot ==="
-            
+
             # Переходим в директорию проекта
-            cd $DEPLOY_PATH || exit 1
-            echo "📂 Рабочая директория: $(pwd)"
-            
+            cd $DEPLOY_PATH || { echo "❌ Директория \$DEPLOY_PATH не найдена!"; exit 1; }
+            echo "📂 Рабочая директория: \$(pwd)"
+
             # Получаем текущее состояние
             echo "🔍 Текущий коммит:"
             git log -1 --oneline
-            
+
             # Обновляем код из main ветки
             echo "📥 Обновляем код из репозитория..."
             git fetch origin main
             git checkout main
             git pull origin main
-            
+
             echo "✅ Новый коммит:"
             git log -1 --oneline
-            
+
             # Перезагружаем бота через systemd
             echo "🔄 Перезагружаем сервис BadWords_4..."
             sudo systemctl restart BadWords_4.service
-            
+
             # Проверяем статус сервиса
             sleep 2
             if sudo systemctl is-active --quiet BadWords_4.service; then
@@ -71,7 +87,7 @@ jobs:
               sudo journalctl -u BadWords_4.service -n 50 --no-pager
               exit 1
             fi
-            
+
             echo "=== Деплой завершен успешно ==="
           DEPLOY_EOF
       
