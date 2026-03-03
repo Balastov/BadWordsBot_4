@@ -243,7 +243,7 @@ class MemeSender:
                 logger.info(f"✅ Резервный мем отправлен в чат {self.chat_id}")
         except Exception as e:
             logger.error(f"❌ Ошибка отправки резервного мема: {e}")
-            self.bot.send_message(self.chat_id, "😅 Не получилось отправить мем, попробуйте позже!")
+            self.bot.send_message(self.chat_id, "Не получилось отправить мем, попробуйте позже!")
     
     # ======================== ИСТОЧНИКИ МЕМОВ ========================
 
