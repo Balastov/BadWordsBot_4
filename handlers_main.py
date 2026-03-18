@@ -2,7 +2,7 @@ import logging
 
 import telebot
 
-from bot_app import bot, daily_events, meme_sender
+from bot_app import bot, daily_events, meme_sender, sticker_counter
 from services.jokes_service import get_random_joke
 from services.users_repository import init_users_db
 
@@ -121,6 +121,27 @@ def send_meme_from_menu(message) -> None:
 def back_to_main_menu(message) -> None:
     """Возврат в главное меню из любых подменю."""
     show_main_menu(message.chat.id, "🤖 Главное меню:")
+
+
+@bot.message_handler(content_types=["sticker"])
+def handle_sticker(message) -> None:
+    """Обработчик стикеров — считает количество отправленных стикеров."""
+    try:
+        user_id = message.from_user.id
+        username = message.from_user.username
+        first_name = message.from_user.first_name
+        last_name = message.from_user.last_name
+        chat_id = message.chat.id
+
+        sticker_counter.add_sticker(
+            user_id=user_id,
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            chat_id=chat_id,
+        )
+    except Exception as e:
+        logger.error("Ошибка при обработке стикера: %s", e)
 
 
 
