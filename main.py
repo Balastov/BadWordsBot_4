@@ -24,26 +24,39 @@ debug_log(
 
 
 def main() -> None:
-    # region agent log
-    debug_log(
-        hypothesis_id="H1",
-        location="main.py:22",
-        message="Starting polling loop",
-        data={"none_stop": True},
-    )
-    # endregion
-    try:
-        bot.polling(none_stop=True)
-    except Exception as exc:
+    restart_count = 0
+    while True:
+        restart_count += 1
         # region agent log
         debug_log(
             hypothesis_id="H1",
-            location="main.py:30",
-            message="Polling crashed with exception",
-            data={"error_type": type(exc).__name__, "error_text": str(exc)},
+            location="main.py:25",
+            message="Starting polling loop",
+            data={
+                "restart_count": restart_count,
+                "mode": "infinity_polling",
+            },
         )
         # endregion
-        raise
+        try:
+            bot.infinity_polling(
+                timeout=20,
+                long_polling_timeout=20,
+                skip_pending=False,
+            )
+        except Exception as exc:
+            # region agent log
+            debug_log(
+                hypothesis_id="H1",
+                location="main.py:41",
+                message="Polling crashed with exception; restarting",
+                data={
+                    "restart_count": restart_count,
+                    "error_type": type(exc).__name__,
+                    "error_text": str(exc),
+                },
+            )
+            # endregion
 
 
 if __name__ == "__main__":
