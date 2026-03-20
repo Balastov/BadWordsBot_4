@@ -3,6 +3,7 @@ import logging
 import telebot
 
 from bot_app import bot, daily_events, meme_sender, sticker_counter
+from services.debug_runtime import debug_log
 from services.jokes_service import get_random_joke
 from services.users_repository import init_users_db
 
@@ -33,6 +34,14 @@ def show_main_menu(chat_id: int, message_text: str = "🤖 Главное мен
 @bot.message_handler(commands=["start"])
 def handle_start(message) -> None:
     """Запуск бота."""
+    # region agent log
+    debug_log(
+        hypothesis_id="H4",
+        location="handlers_main.py:39",
+        message="Received /start command",
+        data={"chat_id": message.chat.id, "user_id": message.from_user.id},
+    )
+    # endregion
     # Автоматически запускаем ежедневные события и мемы
     daily_events.start_daily_scheduler(message.chat.id)
     meme_sender.start_meme_scheduler(message.chat.id)
@@ -142,6 +151,14 @@ def handle_sticker(message) -> None:
         )
     except Exception as e:
         logger.error("Ошибка при обработке стикера: %s", e)
+        # region agent log
+        debug_log(
+            hypothesis_id="H5",
+            location="handlers_main.py:154",
+            message="Sticker handler exception",
+            data={"error_type": type(e).__name__, "error_text": str(e)},
+        )
+        # endregion
 
 
 

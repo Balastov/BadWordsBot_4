@@ -12,6 +12,7 @@ from constants import (
     bot_answer_bad_words,
     bot_replay_answer_bad_words,
 )
+from services.debug_runtime import debug_log
 from services.reply_service import (
     REPLY_PROB_AGA,
     REPLY_PROB_BAD_WORDS,
@@ -159,4 +160,16 @@ def handle_aga_word(message) -> None:
 @bot.message_handler(content_types=["text"])
 def collect_users_only(message) -> None:
     """Обработчик для автоматического сбора пользователей (без логики ответа)."""
+    # region agent log
+    debug_log(
+        hypothesis_id="H4",
+        location="handlers_bad_words.py:166",
+        message="Any text update reached collect_users_only",
+        data={
+            "chat_id": message.chat.id,
+            "user_id": message.from_user.id,
+            "text_preview": (message.text or "")[:40],
+        },
+    )
+    # endregion
     auto_collect_users_from_message(message)
